@@ -1,7 +1,22 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { useState, useEffect, type ReactNode } from "react";
 import { C } from "@/lib/theme";
 
-/** Centers the app inside a phone-sized frame on any screen. */
+function useStandaloneMode() {
+  const [standalone, setStandalone] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(display-mode: standalone)");
+    setStandalone(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setStandalone(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+  return standalone;
+}
+
+/** Centers the app inside a phone-sized frame on any screen.
+ *  In PWA standalone mode, fills the full viewport instead. */
 export default function PhoneFrame({
   children,
   bg = `linear-gradient(180deg, ${C.cream} 0%, #F6E7DF 100%)`,
@@ -9,6 +24,24 @@ export default function PhoneFrame({
   children: ReactNode;
   bg?: string;
 }) {
+  const standalone = useStandaloneMode();
+
+  if (standalone) {
+    return (
+      <div
+        style={{
+          minHeight: "100dvh",
+          background: bg,
+          display: "flex",
+          flexDirection: "column",
+          position: "relative",
+        }}
+      >
+        {children}
+      </div>
+    );
+  }
+
   return (
     <div
       style={{
