@@ -9,6 +9,21 @@ import { getCountryEmergency, buildDefaultContacts } from "./countries";
 
 // ─── Internal ────────────────────────────────────────────────────────────────
 
+async function fetchWikipediaImage(cityRaw: string): Promise<string | undefined> {
+  try {
+    const city = cityRaw.split(",")[0].trim();
+    const res = await fetch(
+      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(city)}`,
+      { headers: { Accept: "application/json" } }
+    );
+    if (!res.ok) return undefined;
+    const data = await res.json() as { thumbnail?: { source: string } };
+    return data.thumbnail?.source;
+  } catch {
+    return undefined;
+  }
+}
+
 async function fetchAllTrips(): Promise<Trip[]> {
   const supabase = createClient();
   const { data, error } = await supabase
@@ -76,6 +91,10 @@ export async function createTrip(input: NewTripInput): Promise<Trip> {
     }
   }
 
+  const coverImage = input.destinationCity
+    ? await fetchWikipediaImage(input.destinationCity)
+    : input.coverImage;
+
   const trip: Trip = {
     id: uid(),
     title: input.title.trim() || "Nuevo viaje",
@@ -85,6 +104,7 @@ export async function createTrip(input: NewTripInput): Promise<Trip> {
     startDate: input.startDate,
     endDate: input.endDate,
     theme: { from: "#3F6E8C", mid: "#7A4A6B", to: "#E0654F" },
+    coverImage,
     emergencyNumber,
     emergencyLabel,
     speakLang,
