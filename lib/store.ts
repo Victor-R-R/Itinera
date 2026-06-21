@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Trip, TripDay, ItineraryItem, City, Contact, NewTripInput, TransportMode, ItemType } from "./types";
 import { uid, generateTripDays } from "./format";
@@ -221,7 +221,7 @@ export async function deleteTrip(id: string): Promise<void> {
 
 // ─── Hooks ───────────────────────────────────────────────────────────────────
 
-export function useTrips(): { trips: Trip[]; ready: boolean } {
+export function useTrips(): { trips: Trip[]; ready: boolean; removeTrip: (id: string) => Promise<void> } {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [ready, setReady] = useState(false);
 
@@ -255,7 +255,12 @@ export function useTrips(): { trips: Trip[]; ready: boolean } {
     };
   }, []);
 
-  return { trips, ready };
+  const removeTrip = useCallback(async (id: string) => {
+    setTrips((prev) => prev.filter((t) => t.id !== id));
+    await deleteTrip(id);
+  }, []);
+
+  return { trips, ready, removeTrip };
 }
 
 export function useTrip(id: string): { trip: Trip | undefined; ready: boolean } {

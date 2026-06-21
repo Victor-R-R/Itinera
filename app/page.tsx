@@ -10,7 +10,7 @@ import { useTrips, useUser, signOut } from "@/lib/store";
 import { C, FONT_DISPLAY, FONT_SANS } from "@/lib/theme";
 
 export default function Home() {
-  const { trips, ready } = useTrips();
+  const { trips, ready, removeTrip } = useTrips();
   const user = useUser();
   const [dialog, setDialog] = useState(false);
 
@@ -92,7 +92,7 @@ export default function Home() {
           ) : (
             <>
               {trips.map((t) => (
-                <TripCard key={t.id} trip={t} />
+                <TripCard key={t.id} trip={t} onDelete={removeTrip} />
               ))}
               <button onClick={() => setDialog(true)} style={{ ...btnPrimary, width: "100%", marginTop: 4 }}>
                 <Plus size={18} /> Nuevo viaje

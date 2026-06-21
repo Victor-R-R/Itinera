@@ -6,14 +6,13 @@ import { Trash2, Pencil, CalendarDays, MapPin } from "lucide-react";
 import { sileo } from "sileo";
 import { C, FONT_DISPLAY } from "@/lib/theme";
 import { fmt } from "@/lib/format";
-import { deleteTrip } from "@/lib/store";
 import EditTripDialog from "./EditTripDialog";
 import type { Trip } from "@/lib/types";
 
-export default function TripCard({ trip }: { trip: Trip }) {
+export default function TripCard({ trip, onDelete }: { trip: Trip; onDelete: (id: string) => Promise<void> }) {
   const [editing, setEditing] = useState(false);
 
-  const onDelete = (e: React.MouseEvent) => {
+  const onDeleteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     sileo.action({
@@ -21,7 +20,7 @@ export default function TripCard({ trip }: { trip: Trip }) {
       description: trip.title,
       button: {
         title: "Eliminar",
-        onClick: () => deleteTrip(trip.id),
+        onClick: () => onDelete(trip.id),
       },
     });
   };
@@ -56,7 +55,7 @@ export default function TripCard({ trip }: { trip: Trip }) {
               <Pencil size={15} color={C.ink} />
             </button>
             <button
-              onClick={onDelete}
+              onClick={onDeleteClick}
               aria-label="Eliminar viaje"
               style={{ width: 32, height: 32, borderRadius: 10, border: "none", cursor: "pointer", background: "rgba(255,255,255,0.85)", display: "flex", alignItems: "center", justifyContent: "center" }}
             >
