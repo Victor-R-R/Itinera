@@ -1,4 +1,4 @@
-import { Plane, BedDouble, Ticket, Car, Coffee, type LucideIcon } from "lucide-react";
+import { Plane, BedDouble, Ticket, Car, Coffee, TrainFront, Sailboat, type LucideIcon } from "lucide-react";
 import { C } from "./theme";
 import type { ItemType } from "./types";
 
@@ -15,6 +15,8 @@ export const TYPE_META: Record<ItemType, TypeMeta> = {
   activity: { label: "Visita", color: C.amber, bg: "#FBF0E0", Icon: Ticket },
   transfer: { label: "Traslado", color: C.dusk, bg: "#EAF1F6", Icon: Car },
   free: { label: "Libre", color: C.inkSoft, bg: "#F2EAE4", Icon: Coffee },
+  train: { label: "Tren", color: C.dusk, bg: "#EAF1F6", Icon: TrainFront },
+  ship: { label: "Barco", color: C.dusk, bg: "#EAF1F6", Icon: Sailboat },
 };
 
 export function metaFor(type: ItemType): TypeMeta {

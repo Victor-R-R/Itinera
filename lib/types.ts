@@ -4,7 +4,9 @@
  * a weekend away — the same shape works for all of them.
  */
 
-export type ItemType = "flight" | "hotel" | "activity" | "transfer" | "free";
+export type ItemType = "flight" | "hotel" | "activity" | "transfer" | "free" | "train" | "ship";
+
+export type TransportMode = "plane" | "car" | "train" | "ship" | "other";
 
 export interface ItineraryItem {
   id: string;
@@ -104,4 +106,7 @@ export interface NewTripInput {
   country: string;
   startDate: string;
   endDate: string;
+  transport?: TransportMode;
+  originCity?: string;
+  destinationCity?: string;
 }
