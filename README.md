@@ -2,12 +2,14 @@
 
 # ✈️ Itinera
 
-**Gestor de itinerarios de viaje — mobile-first, sin backend**
+**Gestor de itinerarios de viaje — mobile-first, con autenticación y soporte PWA**
 
 [![Next.js](https://img.shields.io/badge/Next.js_15-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_v3-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+[![PWA](https://img.shields.io/badge/PWA-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)](https://web.dev/progressive-web-apps/)
 
 *Crea, organiza y consulta tus viajes desde el móvil — con itinerario día a día, mapa de ciudades, frases de viaje y contactos de emergencia.*
 
@@ -17,7 +19,7 @@
 
 ## 🌟 ¿Qué es Itinera?
 
-Itinera es una aplicación web **progressive mobile-first** que centraliza toda la información de tus viajes en un único lugar. Funciona como una **guía de viaje personal** siempre disponible — sin cuenta, sin backend, sin conexión obligatoria.
+Itinera es una aplicación web **progressive mobile-first** que centraliza toda la información de tus viajes en un único lugar. Funciona como una **guía de viaje personal** siempre disponible — instalable como app nativa (PWA) y protegida con autenticación Google.
 
 Cada viaje abre una interfaz de tipo **teléfono** con 5 pestañas especializadas:
 
@@ -41,16 +43,26 @@ cd Itinera
 # Instalar dependencias
 npm install
 
+# Configurar variables de entorno
+cp .env.example .env.local
+# → Rellenar NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY
+
 # Arrancar en desarrollo
 npm run dev
 # → http://localhost:3000
 ```
 
-> La primera vez se cargan automáticamente **2 viajes de ejemplo** para que puedas explorar la app sin configurar nada.
+> La primera vez se cargan automáticamente **2 viajes de ejemplo** para que puedas explorar la app.
 
 ---
 
 ## ✨ Funcionalidades
+
+### 🔐 Autenticación
+- **Login con Google** via OAuth 2.0 (Supabase Auth)
+- Sesión persistente con cookies SSR
+- Middleware de protección de rutas
+- Página de login en `/login`
 
 ### 🗂️ Gestión de viajes
 - **Crear** viajes con título, destino, fechas y viajeros
@@ -80,21 +92,35 @@ npm run dev
 - Contactos: seguro, consulado, bloqueo de tarjeta…
 - Links `tel:` y `mailto:` directamente desde el móvil
 
+### 📱 PWA — Instala como app nativa
+- **Android**: banner de instalación automático (Chrome)
+- **iOS**: instrucciones "Añadir a pantalla de inicio" (Safari)
+- Icono de app, nombre y pantalla de splash
+- Service worker para acceso offline básico
+
 ---
 
 ## 🏗️ Arquitectura
 
 ```
 app/
-├── layout.tsx               # Fuentes (Fraunces + Manrope) + metadatos
+├── layout.tsx               # Fuentes (Fraunces + Manrope) + metadatos PWA
 ├── page.tsx                 # Perfil de usuario + lista de viajes
 ├── globals.css              # Estilos globales
+├── manifest.ts              # Web app manifest (PWA)
+├── icon.tsx                 # Icono app (Next.js image route)
+├── apple-icon.tsx           # Apple touch icon
+├── login/
+│   └── page.tsx             # Página de login (Google OAuth)
+├── auth/
+│   └── callback/route.ts    # Callback OAuth — intercambia code por sesión
 └── trip/[id]/page.tsx       # Shell del viaje: BottomNav + pestañas
 
 components/
 ├── PhoneFrame.tsx            # Marco tipo teléfono (centrado, responsive)
 ├── BottomNav.tsx             # Barra flotante 5 pestañas (glass effect)
 ├── SileoProvider.tsx         # Proveedor de notificaciones toast
+├── InstallPrompt.tsx         # Banner instalación PWA (iOS + Android)
 ├── tabs/
 │   ├── InicioTab.tsx         # Hero + cuenta atrás + plan del día
 │   ├── DiasTab.tsx           # Timeline día a día + edición inline
@@ -117,8 +143,15 @@ lib/
 ├── itinerary.ts             # TYPE_META: icono/color/etiqueta por tipo de item
 ├── format.ts                # Fechas (Intl), cuenta atrás, URL Maps, uid, TTS
 ├── phrases.ts               # Catálogo multilingüe de frases + detección por país
+├── supabase/
+│   ├── client.ts            # Cliente Supabase (browser)
+│   └── server.ts            # Cliente Supabase (SSR con cookies)
 └── data/
     └── sample-trips.ts      # 2 viajes de ejemplo (USA, Lisboa)
+
+middleware.ts                # Protección de rutas — redirige a /login si no autenticado
+public/
+└── sw.js                    # Service worker (offline cache)
 ```
 
 ---
@@ -149,14 +182,26 @@ TripDay {
 
 ## 🔄 Punto de bascule → Backend real
 
-Toda la persistencia está aislada en **`lib/store.ts`**. El resto de la app solo consume el tipo `Trip`. Para conectar un backend real:
+Toda la persistencia está aislada en **`lib/store.ts`**. El resto de la app solo consume el tipo `Trip`. La infraestructura Supabase ya está preparada — para conectar persistencia real:
 
 ```
-1. Crear el esquema en Supabase / Prisma (tabla trips + relaciones)
+1. Crear tabla trips en Supabase (o usar JSONB para days/cities/contacts)
 2. trip/[id]/page.tsx → Server Component con fetch por id
 3. createTrip / deleteTrip → Server Actions + revalidatePath
-4. Multi-usuario: añadir auth + filtrar por userId
+4. Filtrar por userId (el cliente Supabase SSR ya maneja la sesión)
 ```
+
+---
+
+## ⚙️ Variables de entorno
+
+```bash
+# .env.local
+NEXT_PUBLIC_SUPABASE_URL=https://<project>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
+```
+
+Obtén los valores en tu proyecto Supabase → Settings → API.
 
 ---
 
@@ -168,6 +213,7 @@ Toda la persistencia está aislada en **`lib/store.ts`**. El resto de la app sol
 | [React](https://react.dev/) | 19 | UI |
 | [TypeScript](https://www.typescriptlang.org/) | 5 | Tipado estricto |
 | [Tailwind CSS](https://tailwindcss.com/) | 3 | Layout |
+| [Supabase](https://supabase.com/) | 2 | Auth (OAuth Google) + backend listo |
 | [lucide-react](https://lucide.dev/) | 0.468 | Iconos |
 | [Sileo](https://www.npmjs.com/package/sileo) | 0.1 | Notificaciones toast |
 | [next/font](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) | — | Fraunces (display) + Manrope (texto) |
@@ -178,11 +224,12 @@ Toda la persistencia está aislada en **`lib/store.ts`**. El resto de la app sol
 
 ## 📋 Roadmap
 
+- [x] **PWA / offline** — manifest, icons, service worker, install prompt ✅
+- [x] **Autenticación Google** — OAuth via Supabase, middleware de protección ✅
+- [ ] **Backend Supabase** — persistencia real + multi-dispositivo (infraestructura lista)
 - [ ] **Edición avanzada** — editar items existentes inline
-- [ ] **Backend Supabase** — persistencia real + multi-dispositivo
 - [ ] **Mapa real** — Leaflet + OpenStreetMap con pins en `MapaTab`
 - [ ] **Import desde PDF** — parsear itinerarios de email/PDF → `Trip`
-- [ ] **PWA / offline** — cache + acceso sin conexión (útil en viaje)
 - [ ] **Compartir viaje** — link para compartir el itinerario de solo lectura
 
 ---
