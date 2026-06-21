@@ -33,7 +33,11 @@ export default function InicioTab({
     <div>
       <div
         style={{
-          background: `linear-gradient(160deg, ${trip.theme.from} 0%, ${trip.theme.mid} 52%, ${trip.theme.to} 100%)`,
+          background: trip.coverImage
+            ? `linear-gradient(160deg, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.52) 100%), url(${trip.coverImage})`
+            : `linear-gradient(160deg, ${trip.theme.from} 0%, ${trip.theme.mid} 52%, ${trip.theme.to} 100%)`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
           padding: "54px 22px 26px",
           color: "#fff",
           borderBottomLeftRadius: 30,
