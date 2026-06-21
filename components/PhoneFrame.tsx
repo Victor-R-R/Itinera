@@ -30,11 +30,12 @@ export default function PhoneFrame({
     return (
       <div
         style={{
-          minHeight: "100dvh",
+          height: "100dvh",
           background: bg,
           display: "flex",
           flexDirection: "column",
           position: "relative",
+          overflow: "hidden",
         }}
       >
         {children}
