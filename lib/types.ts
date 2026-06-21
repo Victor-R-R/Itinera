@@ -87,6 +87,8 @@ export interface Trip {
   startDate: string;
   endDate: string;
   theme: TripTheme;
+  /** Representative photo URL for the destination (from Wikipedia). */
+  coverImage?: string;
   /** Primary local emergency number (911, 112…). */
   emergencyNumber: string;
   emergencyLabel: string;
@@ -109,4 +111,5 @@ export interface NewTripInput {
   transport?: TransportMode;
   originCity?: string;
   destinationCity?: string;
+  coverImage?: string;
 }

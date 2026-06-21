@@ -38,7 +38,15 @@ export default function TripCard({ trip }: { trip: Trip }) {
         href={`/trip/${trip.id}`}
         style={{ display: "block", textDecoration: "none", color: C.ink, borderRadius: 20, overflow: "hidden", background: C.card, border: `1px solid ${C.line}`, marginBottom: 14 }}
       >
-        <div style={{ height: 76, background: `linear-gradient(120deg, ${trip.theme.from}, ${trip.theme.mid}, ${trip.theme.to})`, position: "relative" }}>
+        <div style={{
+          height: 110,
+          position: "relative",
+          background: trip.coverImage
+            ? `linear-gradient(rgba(0,0,0,0.18), rgba(0,0,0,0.48)), url(${trip.coverImage})`
+            : `linear-gradient(120deg, ${trip.theme.from}, ${trip.theme.mid}, ${trip.theme.to})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}>
           <div style={{ position: "absolute", top: 10, right: 10, display: "flex", gap: 6 }}>
             <button
               onClick={onEdit}
