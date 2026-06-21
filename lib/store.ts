@@ -9,19 +9,31 @@ import { getCountryEmergency, buildDefaultContacts } from "./countries";
 
 // ─── Internal ────────────────────────────────────────────────────────────────
 
-async function fetchWikipediaImage(cityRaw: string): Promise<string | undefined> {
+async function tryWikipediaThumbnail(name: string, lang = "en"): Promise<string | undefined> {
   try {
-    const city = cityRaw.split(",")[0].trim();
     const res = await fetch(
-      `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(city)}`,
+      `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(name)}`,
       { headers: { Accept: "application/json" } }
     );
     if (!res.ok) return undefined;
-    const data = await res.json() as { thumbnail?: { source: string } };
+    const data = await res.json() as { type?: string; thumbnail?: { source: string } };
+    if (data.type === "disambiguation") return undefined;
     return data.thumbnail?.source;
   } catch {
     return undefined;
   }
+}
+
+async function fetchWikipediaImage(cityRaw: string, title?: string): Promise<string | undefined> {
+  const city = cityRaw.split(",")[0].trim();
+  // Cascade: city (en) → "city City" (en) → title (en) → city (es) → title (es)
+  return (
+    await tryWikipediaThumbnail(city) ??
+    await tryWikipediaThumbnail(`${city} City`) ??
+    (title && title !== city ? await tryWikipediaThumbnail(title) : undefined) ??
+    await tryWikipediaThumbnail(city, "es") ??
+    (title && title !== city ? await tryWikipediaThumbnail(title, "es") : undefined)
+  );
 }
 
 async function fetchAllTrips(): Promise<Trip[]> {
@@ -91,8 +103,9 @@ export async function createTrip(input: NewTripInput): Promise<Trip> {
     }
   }
 
-  const coverImage = input.destinationCity
-    ? await fetchWikipediaImage(input.destinationCity)
+  const searchQuery = input.destinationCity || input.title.trim();
+  const coverImage = searchQuery
+    ? await fetchWikipediaImage(searchQuery, input.title.trim())
     : input.coverImage;
 
   const trip: Trip = {
