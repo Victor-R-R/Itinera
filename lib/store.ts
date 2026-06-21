@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { Trip, TripDay, ItineraryItem, City, NewTripInput, TransportMode, ItemType } from "./types";
+import type { Trip, TripDay, ItineraryItem, City, Contact, NewTripInput, TransportMode, ItemType } from "./types";
 import { uid, generateTripDays } from "./format";
 import { getCountryConfig } from "./phrases";
+import { getCountryEmergency, buildDefaultContacts } from "./countries";
 
 // ─── Internal ────────────────────────────────────────────────────────────────
 
@@ -29,6 +30,8 @@ export async function createTrip(input: NewTripInput): Promise<Trip> {
 
   const countryName = input.country.trim() || "—";
   const { speakLang, phrases } = getCountryConfig(countryName);
+  const { emergencyNumber, emergencyLabel } = getCountryEmergency(countryName);
+  const contacts = buildDefaultContacts(countryName);
 
   const days = generateTripDays(input.startDate, input.endDate);
   const cities: City[] = [];
@@ -82,12 +85,12 @@ export async function createTrip(input: NewTripInput): Promise<Trip> {
     startDate: input.startDate,
     endDate: input.endDate,
     theme: { from: "#3F6E8C", mid: "#7A4A6B", to: "#E0654F" },
-    emergencyNumber: "112",
-    emergencyLabel: "Emergencias",
+    emergencyNumber,
+    emergencyLabel,
     speakLang,
     days,
     cities,
-    contacts: [],
+    contacts,
     phrases,
   };
 
@@ -167,6 +170,15 @@ export const deleteItemFromDay = (
         : d
     ),
     cities: t.cities.filter((c) => c.sourceItemId !== itemId),
+  }));
+
+export const addContact = (tripId: string, contact: Contact): Promise<void> =>
+  updateTrip(tripId, (t) => ({ ...t, contacts: [...t.contacts, contact] }));
+
+export const deleteContact = (tripId: string, contactId: string): Promise<void> =>
+  updateTrip(tripId, (t) => ({
+    ...t,
+    contacts: t.contacts.filter((c) => c.id !== contactId),
   }));
 
 export async function deleteTrip(id: string): Promise<void> {
