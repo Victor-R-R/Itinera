@@ -114,7 +114,7 @@ const inputStyle: React.CSSProperties = {
   borderRadius: 12,
   padding: "11px 12px",
   fontFamily: FONT_SANS,
-  fontSize: 14,
+  fontSize: 16,
   color: C.ink,
   background: "#fff",
   outline: "none",
