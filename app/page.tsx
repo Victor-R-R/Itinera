@@ -6,6 +6,7 @@ import Image from "next/image";
 import PhoneFrame from "@/components/PhoneFrame";
 import TripCard from "@/components/trips/TripCard";
 import NewTripDialog from "@/components/trips/NewTripDialog";
+import PushNotificationToggle from "@/components/PushNotificationToggle";
 import { useTrips, useUser, signOut } from "@/lib/store";
 import { C, FONT_DISPLAY, FONT_SANS } from "@/lib/theme";
 
@@ -42,6 +43,7 @@ export default function Home() {
                 {ready ? `${trips.length} viaje${trips.length !== 1 ? "s" : ""}` : "Cargando…"}
               </div>
             </div>
+            <PushNotificationToggle />
             <button
               onClick={signOut}
               aria-label="Cerrar sesión"
