@@ -161,7 +161,7 @@ const btnPrimary: React.CSSProperties = {
   alignItems: "center",
   justifyContent: "center",
   gap: 7,
-  border: "none",
+  border: "1.5px solid transparent",
   borderRadius: 14,
   padding: "13px 20px",
   fontSize: 15,
@@ -169,6 +169,7 @@ const btnPrimary: React.CSSProperties = {
   color: "#fff",
   background: C.rose,
   cursor: "pointer",
+  boxSizing: "border-box",
 };
 
 const btnSecondary: React.CSSProperties = {
@@ -185,4 +186,5 @@ const btnSecondary: React.CSSProperties = {
   background: "rgba(63,110,140,0.08)",
   cursor: "pointer",
   flexShrink: 0,
+  boxSizing: "border-box",
 };
