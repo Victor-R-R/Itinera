@@ -157,7 +157,7 @@ export default function AddItemDialog({
                   style={{
                     flex: 1,
                     borderRadius: 12,
-                    border: on ? `2px solid ${m.color}` : `1px solid ${C.line}`,
+                    border: on ? `2px solid ${m.color}` : `2px solid ${C.line}`,
                     background: on ? m.bg : "#fff",
                     padding: "9px 4px 7px",
                     display: "flex",
