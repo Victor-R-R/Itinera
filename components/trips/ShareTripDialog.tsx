@@ -59,7 +59,7 @@ export default function ShareTripDialog({
           </div>
           <button
             onClick={onClose}
-            style={{ width: 32, height: 32, borderRadius: 10, border: `1px solid ${C.line}`, background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+            style={{ width: 36, height: 36, padding: 0, borderRadius: 10, border: `1px solid ${C.line}`, background: "transparent", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
           >
             <X size={16} color={C.inkSoft} />
           </button>

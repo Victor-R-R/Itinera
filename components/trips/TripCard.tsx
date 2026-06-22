@@ -88,21 +88,21 @@ export default function TripCard({
                 <button
                   onClick={onShare}
                   aria-label={t("tripCard.share")}
-                  style={{ width: 32, height: 32, borderRadius: 10, border: "none", cursor: "pointer", background: "rgba(255,255,255,0.85)", display: "flex", alignItems: "center", justifyContent: "center" }}
+                  style={{ width: 32, height: 32, padding: 0, margin: 0, borderRadius: 10, border: "none", cursor: "pointer", background: "rgba(255,255,255,0.85)", display: "flex", alignItems: "center", justifyContent: "center" }}
                 >
                   <Share2 size={15} color={C.dusk} />
                 </button>
                 <button
                   onClick={onEdit}
                   aria-label={t("tripCard.edit")}
-                  style={{ width: 32, height: 32, borderRadius: 10, border: "none", cursor: "pointer", background: "rgba(255,255,255,0.85)", display: "flex", alignItems: "center", justifyContent: "center" }}
+                  style={{ width: 32, height: 32, padding: 0, margin: 0, borderRadius: 10, border: "none", cursor: "pointer", background: "rgba(255,255,255,0.85)", display: "flex", alignItems: "center", justifyContent: "center" }}
                 >
                   <Pencil size={15} color={C.ink} />
                 </button>
                 <button
                   onClick={onDeleteClick}
                   aria-label={t("tripCard.delete")}
-                  style={{ width: 32, height: 32, borderRadius: 10, border: "none", cursor: "pointer", background: "rgba(255,255,255,0.85)", display: "flex", alignItems: "center", justifyContent: "center" }}
+                  style={{ width: 32, height: 32, padding: 0, margin: 0, borderRadius: 10, border: "none", cursor: "pointer", background: "rgba(255,255,255,0.85)", display: "flex", alignItems: "center", justifyContent: "center" }}
                 >
                   <Trash2 size={15} color={C.danger} />
                 </button>
@@ -112,7 +112,7 @@ export default function TripCard({
               <button
                 onClick={onLeaveClick}
                 aria-label={t("tripCard.leaveTrip")}
-                style={{ width: 32, height: 32, borderRadius: 10, border: "none", cursor: "pointer", background: "rgba(255,255,255,0.85)", display: "flex", alignItems: "center", justifyContent: "center" }}
+                style={{ width: 32, height: 32, padding: 0, margin: 0, borderRadius: 10, border: "none", cursor: "pointer", background: "rgba(255,255,255,0.85)", display: "flex", alignItems: "center", justifyContent: "center" }}
               >
                 <LogOut size={15} color={C.danger} />
               </button>
