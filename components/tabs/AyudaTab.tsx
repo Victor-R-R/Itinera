@@ -11,7 +11,7 @@ import { uid } from "@/lib/format";
 import type { Trip, Contact, ContactKind } from "@/lib/types";
 import { useT } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n";
-import { EMERGENCY_LABEL_I18N, CONTACT_LABEL_I18N } from "@/lib/countries";
+import { EMERGENCY_LABEL_I18N, CONTACT_LABEL_I18N, getConsulateForLocale } from "@/lib/countries";
 
 // ─── Static maps ─────────────────────────────────────────────────────────────
 
@@ -74,6 +74,14 @@ export default function AyudaTab({ trip }: { trip: Trip }) {
     locale === "es" ? text : (map[text]?.[locale as Exclude<Locale, "es">] ?? text);
 
   const kindOptions = KIND_ORDER.map((kind) => ({ kind, label: t(`ayuda.kind_${kind}`) }));
+
+  // Derive the consulate at display-time based on current locale + trip country.
+  // Used when no consulate is stored in trip.contacts (e.g. existing trips, or
+  // trips to the user's home country like España for a French user).
+  const hasStoredConsulate = trip.contacts.some((c) => c.kind === "consulate");
+  const derivedConsulate = !hasStoredConsulate
+    ? getConsulateForLocale(trip.country, locale)
+    : undefined;
   const [adding, setAdding] = useState(false);
   const [kind, setKind] = useState<ContactKind>("insurance");
   const [label, setLabel] = useState("");
@@ -237,48 +245,74 @@ export default function AyudaTab({ trip }: { trip: Trip }) {
 
       {/* ── Contact list ── */}
       <div style={{ padding: "0 16px 24px" }}>
-        {trip.contacts.length === 0 && !adding ? (
+        {trip.contacts.length === 0 && !adding && !derivedConsulate ? (
           <div style={{ color: C.inkSoft, fontSize: 13.5, paddingTop: 4 }}>
             {t("ayuda.emptyContacts")}
           </div>
         ) : (
-          trip.contacts.map((c) => {
-            const Icon = ICON[c.kind];
-            const col = COLOR[c.kind];
-            const isDeleting = deletingId === c.id;
-            return (
-              <div
-                key={c.id}
-                style={{ display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.line}`, borderRadius: 16, padding: "12px 12px", marginBottom: 10, opacity: isDeleting ? 0.4 : 1, transition: "opacity .2s" }}
-              >
+          <>
+            {derivedConsulate && (() => {
+              const Icon = ICON[derivedConsulate.kind as keyof typeof ICON] ?? Building2;
+              const col = COLOR[derivedConsulate.kind as keyof typeof COLOR] ?? C.plum;
+              return (
                 <a
-                  href={contactHref(c)}
-                  style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", color: C.ink, flex: 1, minWidth: 0 }}
+                  key="derived-consulate"
+                  href={`tel:${derivedConsulate.value.replace(/\s/g, "")}`}
+                  style={{ display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.line}`, borderRadius: 16, padding: "12px 12px", marginBottom: 10, textDecoration: "none", color: C.ink }}
                 >
                   <div style={{ width: 40, height: 40, borderRadius: 11, background: col + "18", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <Icon size={19} color={col} />
                   </div>
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700 }}>{tr(CONTACT_LABEL_I18N, c.label)}</div>
-                    {c.note && (
-                      <div style={{ fontSize: 11.5, color: C.inkSoft, marginTop: 1 }}>{c.note}</div>
+                    <div style={{ fontSize: 14, fontWeight: 700 }}>{derivedConsulate.label}</div>
+                    {derivedConsulate.note && (
+                      <div style={{ fontSize: 11.5, color: C.inkSoft, marginTop: 1 }}>{derivedConsulate.note}</div>
                     )}
                   </div>
                   <div style={{ fontSize: 12.5, fontWeight: 700, color: col, flexShrink: 0, textAlign: "right", marginRight: 4 }}>
-                    {c.value}
+                    {derivedConsulate.value}
                   </div>
                 </a>
-                <button
-                  onClick={() => remove(c.id)}
-                  disabled={isDeleting}
-                  style={{ border: "none", background: "transparent", cursor: isDeleting ? "not-allowed" : "pointer", padding: 6, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}
-                  aria-label={t("ayuda.deleteContact")}
+              );
+            })()}
+            {trip.contacts.map((c) => {
+              const Icon = ICON[c.kind];
+              const col = COLOR[c.kind];
+              const isDeleting = deletingId === c.id;
+              return (
+                <div
+                  key={c.id}
+                  style={{ display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.line}`, borderRadius: 16, padding: "12px 12px", marginBottom: 10, opacity: isDeleting ? 0.4 : 1, transition: "opacity .2s" }}
                 >
-                  <Trash2 size={15} color={C.inkSoft} />
-                </button>
-              </div>
-            );
-          })
+                  <a
+                    href={contactHref(c)}
+                    style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", color: C.ink, flex: 1, minWidth: 0 }}
+                  >
+                    <div style={{ width: 40, height: 40, borderRadius: 11, background: col + "18", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <Icon size={19} color={col} />
+                    </div>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700 }}>{tr(CONTACT_LABEL_I18N, c.label)}</div>
+                      {c.note && (
+                        <div style={{ fontSize: 11.5, color: C.inkSoft, marginTop: 1 }}>{c.note}</div>
+                      )}
+                    </div>
+                    <div style={{ fontSize: 12.5, fontWeight: 700, color: col, flexShrink: 0, textAlign: "right", marginRight: 4 }}>
+                      {c.value}
+                    </div>
+                  </a>
+                  <button
+                    onClick={() => remove(c.id)}
+                    disabled={isDeleting}
+                    style={{ border: "none", background: "transparent", cursor: isDeleting ? "not-allowed" : "pointer", padding: 6, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}
+                    aria-label={t("ayuda.deleteContact")}
+                  >
+                    <Trash2 size={15} color={C.inkSoft} />
+                  </button>
+                </div>
+              );
+            })}
+          </>
         )}
       </div>
     </div>

@@ -1,10 +1,13 @@
 import { uid } from "./format";
 import type { Contact } from "./types";
 
+type ConsulateInfo = Omit<Contact, "id">;
+
 type CountryData = {
   emergencyNumber: string;
   emergencyLabel: string;
-  consulate?: Omit<Contact, "id">;
+  // keyed by locale ("es", "fr") — each locale's own embassy/consulate at the destination
+  consulates?: Partial<Record<string, ConsulateInfo>>;
 };
 
 type CountryEntry = {
@@ -14,15 +17,38 @@ type CountryEntry = {
 
 const COUNTRY_DATA: CountryEntry[] = [
   {
+    keys: ["españa", "spain", "espana", "madrid", "barcelona", "sevilla", "valencia", "bilbao"],
+    data: {
+      emergencyNumber: "112",
+      emergencyLabel: "Número europeo de emergencias",
+      consulates: {
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Madrid",
+          value: "+34917008900",
+          note: "Lun–Ven 9:00–12:30",
+        },
+      },
+    },
+  },
+  {
     keys: ["eeuu", "estados unidos", "usa", "united states", "america"],
     data: {
       emergencyNumber: "911",
       emergencyLabel: "Emergencias EEUU",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Washington",
-        value: "+12024520100",
-        note: "Lun–Vie 9:00–14:30",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Washington",
+          value: "+12024520100",
+          note: "Lun–Vie 9:00–14:30",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Washington",
+          value: "+12029446000",
+          note: "Lun–Ven 8:30–12:30",
+        },
       },
     },
   },
@@ -31,11 +57,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "999",
       emergencyLabel: "Emergencias Reino Unido",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Londres",
-        value: "+442072355555",
-        note: "Lun–Vie 9:00–14:00",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Londres",
+          value: "+442072355555",
+          note: "Lun–Vie 9:00–14:00",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Londres",
+          value: "+442070731000",
+          note: "Lun–Ven 9:00–13:00",
+        },
       },
     },
   },
@@ -44,11 +78,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "000",
       emergencyLabel: "Emergencias Australia",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Camberra",
-        value: "+61262733555",
-        note: "Lun–Vie 9:00–13:30",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Camberra",
+          value: "+61262733555",
+          note: "Lun–Vie 9:00–13:30",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Canberra",
+          value: "+61262160100",
+          note: "Lun–Ven 9:00–12:30",
+        },
       },
     },
   },
@@ -57,11 +99,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "911",
       emergencyLabel: "Emergencias Canadá",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Ottawa",
-        value: "+16137472252",
-        note: "Lun–Vie 9:00–13:00",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Ottawa",
+          value: "+16137472252",
+          note: "Lun–Vie 9:00–13:00",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Ottawa",
+          value: "+16137891795",
+          note: "Lun–Ven 8:30–12:30",
+        },
       },
     },
   },
@@ -70,10 +120,18 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "111",
       emergencyLabel: "Emergencias Nueva Zelanda",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Wellington",
-        value: "+6444153952",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Wellington",
+          value: "+6444153952",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Wellington",
+          value: "+6443842555",
+          note: "Lun–Ven 9:00–12:30",
+        },
       },
     },
   },
@@ -82,11 +140,13 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "112",
       emergencyLabel: "Número europeo de emergencias",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en París",
-        value: "+33144431800",
-        note: "Lun–Vie 9:00–14:00",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en París",
+          value: "+33144431800",
+          note: "Lun–Vie 9:00–14:00",
+        },
       },
     },
   },
@@ -95,11 +155,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "112",
       emergencyLabel: "Número europeo de emergencias",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Berlín",
-        value: "+492302540070",
-        note: "Lun–Vie 9:00–14:00",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Berlín",
+          value: "+492302540070",
+          note: "Lun–Vie 9:00–14:00",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Berlin",
+          value: "+4930590039000",
+          note: "Lun–Ven 9:00–12:30",
+        },
       },
     },
   },
@@ -108,11 +176,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "112",
       emergencyLabel: "Número europeo de emergencias",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Roma",
-        value: "+390668404001",
-        note: "Lun–Vie 9:00–14:00",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Roma",
+          value: "+390668404001",
+          note: "Lun–Vie 9:00–14:00",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Rome",
+          value: "+39066860111",
+          note: "Lun–Ven 9:00–12:30",
+        },
       },
     },
   },
@@ -121,11 +197,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "112",
       emergencyLabel: "Número europeo de emergencias",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Lisboa",
-        value: "+351213472381",
-        note: "Lun–Vie 9:00–14:00",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Lisboa",
+          value: "+351213472381",
+          note: "Lun–Vie 9:00–14:00",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Lisbonne",
+          value: "+351213939100",
+          note: "Lun–Ven 9:00–12:30",
+        },
       },
     },
   },
@@ -134,11 +218,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "112",
       emergencyLabel: "Número europeo de emergencias",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Atenas",
-        value: "+302103456041",
-        note: "Lun–Vie 9:00–14:00",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Atenas",
+          value: "+302103456041",
+          note: "Lun–Vie 9:00–14:00",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Athènes",
+          value: "+302103391000",
+          note: "Lun–Ven 9:00–12:30",
+        },
       },
     },
   },
@@ -147,11 +239,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "112",
       emergencyLabel: "Número europeo de emergencias",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en La Haya",
-        value: "+31703643814",
-        note: "Lun–Vie 9:00–14:00",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en La Haya",
+          value: "+31703643814",
+          note: "Lun–Vie 9:00–14:00",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à La Haye",
+          value: "+31703125800",
+          note: "Lun–Ven 9:00–12:30",
+        },
       },
     },
   },
@@ -160,11 +260,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "112",
       emergencyLabel: "Número europeo de emergencias",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Bruselas",
-        value: "+3225093800",
-        note: "Lun–Vie 9:00–14:00",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Bruselas",
+          value: "+3225093800",
+          note: "Lun–Vie 9:00–14:00",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Bruxelles",
+          value: "+3225488711",
+          note: "Lun–Ven 9:00–12:30",
+        },
       },
     },
   },
@@ -173,11 +281,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "112",
       emergencyLabel: "Número europeo de emergencias",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Viena",
-        value: "+43150679880",
-        note: "Lun–Vie 9:00–14:00",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Viena",
+          value: "+43150679880",
+          note: "Lun–Vie 9:00–14:00",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Vienne",
+          value: "+43150275100",
+          note: "Lun–Ven 9:00–12:30",
+        },
       },
     },
   },
@@ -186,11 +302,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "112",
       emergencyLabel: "Número europeo de emergencias",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Berna",
-        value: "+41313508282",
-        note: "Lun–Vie 9:00–13:00",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Berna",
+          value: "+41313508282",
+          note: "Lun–Vie 9:00–13:00",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Berne",
+          value: "+41313592111",
+          note: "Lun–Ven 9:00–12:30",
+        },
       },
     },
   },
@@ -199,11 +323,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "119",
       emergencyLabel: "Ambulancia / Bomberos Japón",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Tokio",
-        value: "+81335838531",
-        note: "Policía: 110",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Tokio",
+          value: "+81335838531",
+          note: "Policía: 110",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Tokyo",
+          value: "+81357986000",
+          note: "Police: 110",
+        },
       },
     },
   },
@@ -212,11 +344,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "120",
       emergencyLabel: "Ambulancia China",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Pekín",
-        value: "+861065323629",
-        note: "Policía: 110  |  Bomberos: 119",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Pekín",
+          value: "+861065323629",
+          note: "Policía: 110  |  Bomberos: 119",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Pékin",
+          value: "+861085328080",
+          note: "Police: 110  |  Pompiers: 119",
+        },
       },
     },
   },
@@ -225,11 +365,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "119",
       emergencyLabel: "Ambulancia / Bomberos Corea",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Seúl",
-        value: "+8227943581",
-        note: "Policía: 112",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Seúl",
+          value: "+8227943581",
+          note: "Policía: 112",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Séoul",
+          value: "+8221494300",
+          note: "Police: 112",
+        },
       },
     },
   },
@@ -238,11 +386,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "1669",
       emergencyLabel: "Ambulancia Tailandia",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Bangkok",
-        value: "+6626618284",
-        note: "Policía turista: 1155",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Bangkok",
+          value: "+6626618284",
+          note: "Policía turista: 1155",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Bangkok",
+          value: "+6626575100",
+          note: "Police touriste: 1155",
+        },
       },
     },
   },
@@ -251,11 +407,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "15",
       emergencyLabel: "Ambulancia Marruecos",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Rabat",
-        value: "+212537633900",
-        note: "Policía: 19  |  Bomberos: 15",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Rabat",
+          value: "+212537633900",
+          note: "Policía: 19  |  Bomberos: 15",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Rabat",
+          value: "+212537689700",
+          note: "Police: 19  |  Pompiers: 15",
+        },
       },
     },
   },
@@ -264,11 +428,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "123",
       emergencyLabel: "Ambulancia Egipto",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en El Cairo",
-        value: "+20223636625",
-        note: "Policía: 122",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en El Cairo",
+          value: "+20223636625",
+          note: "Policía: 122",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France au Caire",
+          value: "+20235673200",
+          note: "Police: 122",
+        },
       },
     },
   },
@@ -277,11 +449,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "999",
       emergencyLabel: "Emergencias Emiratos",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Abu Dabi",
-        value: "+97124269644",
-        note: "Ambulancia: 998",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Abu Dabi",
+          value: "+97124269644",
+          note: "Ambulancia: 998",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Abou Dhabi",
+          value: "+97124435100",
+          note: "Ambulance: 998",
+        },
       },
     },
   },
@@ -290,11 +470,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "112",
       emergencyLabel: "Emergencias Turquía",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Ankara",
-        value: "+903124380392",
-        note: "Lun–Vie 9:00–13:00",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Ankara",
+          value: "+903124380392",
+          note: "Lun–Vie 9:00–13:00",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Ankara",
+          value: "+903124554545",
+          note: "Lun–Ven 9:00–12:30",
+        },
       },
     },
   },
@@ -303,11 +491,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "911",
       emergencyLabel: "Emergencias México",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Ciudad de México",
-        value: "+5255528229744",
-        note: "Lun–Vie 9:00–14:00",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Ciudad de México",
+          value: "+5255528229744",
+          note: "Lun–Vie 9:00–14:00",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Mexico",
+          value: "+525591719700",
+          note: "Lun–Ven 9:00–13:00",
+        },
       },
     },
   },
@@ -316,11 +512,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "911",
       emergencyLabel: "Emergencias Argentina",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Buenos Aires",
-        value: "+541148190031",
-        note: "Ambulancia: 107",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Buenos Aires",
+          value: "+541148190031",
+          note: "Ambulancia: 107",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Buenos Aires",
+          value: "+541145157030",
+          note: "Ambulance: 107",
+        },
       },
     },
   },
@@ -329,11 +533,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "192",
       emergencyLabel: "Ambulancia Brasil",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Brasilia",
-        value: "+556132424848",
-        note: "Policía: 190  |  Bomberos: 193",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Brasilia",
+          value: "+556132424848",
+          note: "Policía: 190  |  Bomberos: 193",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Brasilia",
+          value: "+556132221300",
+          note: "Police: 190  |  Pompiers: 193",
+        },
       },
     },
   },
@@ -342,11 +554,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "123",
       emergencyLabel: "Emergencias Colombia",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Bogotá",
-        value: "+5716574090",
-        note: "Lun–Vie 9:00–14:00",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Bogotá",
+          value: "+5716574090",
+          note: "Lun–Vie 9:00–14:00",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Bogotá",
+          value: "+5716381400",
+          note: "Lun–Ven 9:00–13:00",
+        },
       },
     },
   },
@@ -355,11 +575,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "117",
       emergencyLabel: "Ambulancia Perú",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Lima",
-        value: "+5112127295",
-        note: "Policía: 105",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Lima",
+          value: "+5112127295",
+          note: "Policía: 105",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Lima",
+          value: "+5112158400",
+          note: "Police: 105",
+        },
       },
     },
   },
@@ -368,11 +596,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "112",
       emergencyLabel: "Emergencias India",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Nueva Delhi",
-        value: "+911123792085",
-        note: "Ambulancia: 102  |  Policía: 100",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Nueva Delhi",
+          value: "+911123792085",
+          note: "Ambulancia: 102  |  Policía: 100",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à New Delhi",
+          value: "+911124196100",
+          note: "Ambulance: 102  |  Police: 100",
+        },
       },
     },
   },
@@ -381,11 +617,19 @@ const COUNTRY_DATA: CountryEntry[] = [
     data: {
       emergencyNumber: "112",
       emergencyLabel: "Emergencias Irlanda",
-      consulate: {
-        kind: "consulate",
-        label: "Embajada de España en Dublín",
-        value: "+35312691640",
-        note: "Lun–Vie 9:00–14:00",
+      consulates: {
+        es: {
+          kind: "consulate",
+          label: "Embajada de España en Dublín",
+          value: "+35312691640",
+          note: "Lun–Vie 9:00–14:00",
+        },
+        fr: {
+          kind: "consulate",
+          label: "Ambassade de France à Dublin",
+          value: "+35312775000",
+          note: "Lun–Ven 9:00–12:30",
+        },
       },
     },
   },
@@ -396,18 +640,30 @@ const DEFAULT: CountryData = {
   emergencyLabel: "Número de emergencias",
 };
 
-export const getCountryEmergency = (country: string): CountryData => {
+const findEntry = (country: string): CountryEntry | undefined => {
   const normalized = country.toLowerCase().trim();
-  const match = COUNTRY_DATA.find((entry) =>
+  return COUNTRY_DATA.find((entry) =>
     entry.keys.some((key) => normalized.includes(key))
   );
-  return match?.data ?? DEFAULT;
 };
 
-export const buildDefaultContacts = (country: string): Contact[] => {
-  const data = getCountryEmergency(country);
-  if (!data.consulate) return [];
-  return [{ id: uid(), ...data.consulate }];
+export const getCountryEmergency = (country: string): CountryData => {
+  return findEntry(country)?.data ?? DEFAULT;
+};
+
+export const getConsulateForLocale = (
+  country: string,
+  locale: string
+): ConsulateInfo | undefined => {
+  const consulates = findEntry(country)?.data.consulates;
+  if (!consulates) return undefined;
+  return consulates[locale] ?? consulates.es ?? undefined;
+};
+
+export const buildDefaultContacts = (country: string, locale = "es"): Contact[] => {
+  const consulate = getConsulateForLocale(country, locale);
+  if (!consulate) return [];
+  return [{ id: uid(), ...consulate }];
 };
 
 // ─── Traducciones display-time ────────────────────────────────────────────────
