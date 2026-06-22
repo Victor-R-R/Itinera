@@ -19,6 +19,7 @@ export default function PushNotificationToggle() {
   const [permission, setPermission] = useState<NotificationPermission>("default");
   const [subscribed, setSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [ringing, setRinging] = useState(false);
 
   useEffect(() => {
     const ok =
@@ -58,7 +59,11 @@ export default function PushNotificationToggle() {
         body: JSON.stringify({ subscription: sub.toJSON() }),
       });
 
-      if (res.ok) setSubscribed(true);
+      if (res.ok) {
+        setSubscribed(true);
+        setRinging(true);
+        setTimeout(() => setRinging(false), 700);
+      }
     } catch (err) {
       console.error("[push] enable error:", err);
     } finally {
@@ -90,31 +95,47 @@ export default function PushNotificationToggle() {
   if (!supported || permission === "denied") return null;
 
   return (
-    <button
-      onClick={subscribed ? disable : enable}
-      disabled={loading}
-      aria-label={subscribed ? "Desactivar notificaciones" : "Activar notificaciones"}
-      title={subscribed ? "Desactivar notificaciones" : "Activar notificaciones"}
-      style={{
-        width: 36,
-        height: 36,
-        borderRadius: 12,
-        border: `1px solid ${subscribed ? C.rose : C.line}`,
-        background: subscribed ? `${C.rose}15` : "#fff",
-        cursor: loading ? "wait" : "pointer",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        flexShrink: 0,
-        opacity: loading ? 0.6 : 1,
-        transition: "all 0.2s",
-      }}
-    >
-      {subscribed ? (
-        <Bell size={16} color={C.rose} fill={C.rose} />
-      ) : (
-        <Bell size={16} color={C.inkSoft} />
-      )}
-    </button>
+    <>
+      <style>{`
+        @keyframes bell-ring {
+          0%, 100% { transform: rotate(0deg); }
+          15%       { transform: rotate(-18deg); }
+          35%       { transform: rotate(18deg); }
+          55%       { transform: rotate(-10deg); }
+          75%       { transform: rotate(10deg); }
+        }
+        .bell-ringing { animation: bell-ring 0.7s ease-in-out; }
+      `}</style>
+
+      <button
+        onClick={subscribed ? disable : enable}
+        disabled={loading}
+        aria-label={subscribed ? "Desactivar notificaciones" : "Activar notificaciones"}
+        title={subscribed ? "Desactivar notificaciones" : "Activar notificaciones"}
+        style={{
+          width: 36,
+          height: 36,
+          borderRadius: 12,
+          border: `1.5px solid ${subscribed ? C.rose : C.line}`,
+          background: subscribed ? `${C.rose}18` : "rgba(255,255,255,0.7)",
+          cursor: loading ? "wait" : "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+          opacity: loading ? 0.45 : 1,
+          transition: "border-color 0.25s, background 0.25s, box-shadow 0.25s, opacity 0.2s",
+          boxShadow: subscribed ? `0 0 0 3px ${C.rose}22` : "none",
+        }}
+      >
+        <span className={ringing ? "bell-ringing" : undefined} style={{ display: "flex" }}>
+          {subscribed ? (
+            <Bell size={16} color={C.rose} fill={C.rose} />
+          ) : (
+            <BellOff size={16} color={C.inkSoft} />
+          )}
+        </span>
+      </button>
+    </>
   );
 }
