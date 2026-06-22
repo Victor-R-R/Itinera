@@ -47,22 +47,24 @@ export default function Home() {
                   : t("home.loading")}
               </div>
             </div>
-            <PushNotificationToggle />
-            <button
-              onClick={() => setLocale(locale === "es" ? "fr" : "es")}
-              aria-label={locale === "es" ? "Changer en français" : "Cambiar a español"}
-              title={locale === "es" ? "Changer en français" : "Cambiar a español"}
-              style={{ width: 36, height: 36, borderRadius: 12, border: `1px solid ${C.line}`, background: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 18, lineHeight: 1 }}
-            >
-              {locale === "es" ? "🇫🇷" : "🇪🇸"}
-            </button>
-            <button
-              onClick={signOut}
-              aria-label={t("home.signOut")}
-              style={{ width: 36, height: 36, borderRadius: 12, border: `1px solid ${C.line}`, background: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
-            >
-              <LogOut size={16} color={C.inkSoft} />
-            </button>
+            <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
+              <PushNotificationToggle />
+              <button
+                onClick={() => setLocale(locale === "es" ? "fr" : "es")}
+                aria-label={locale === "es" ? "Changer en français" : "Cambiar a español"}
+                title={locale === "es" ? "Changer en français" : "Cambiar a español"}
+                style={{ height: 36, paddingInline: 10, borderRadius: 12, border: `1.5px solid ${C.dusk}`, background: "#EAF1F6", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 12, fontWeight: 800, color: C.dusk, letterSpacing: 0.5 }}
+              >
+                {locale === "es" ? "FR" : "ES"}
+              </button>
+              <button
+                onClick={signOut}
+                aria-label={t("home.signOut")}
+                style={{ width: 36, height: 36, borderRadius: 12, border: `1px solid ${C.line}`, background: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}
+              >
+                <LogOut size={16} color={C.inkSoft} />
+              </button>
+            </div>
           </div>
 
           {/* Stat pills */}
