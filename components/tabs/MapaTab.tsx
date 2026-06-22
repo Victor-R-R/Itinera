@@ -6,8 +6,10 @@ import { mapsUrl } from "@/lib/format";
 import { metaFor } from "@/lib/itinerary";
 import { Header } from "@/components/ui/Sections";
 import type { Trip, City } from "@/lib/types";
+import { useT } from "@/lib/i18n";
 
 export default function MapaTab({ trip }: { trip: Trip }) {
+  const { t } = useT();
   const manual = trip.cities.filter((c) => !c.sourceItemId);
   const auto = trip.cities.filter((c) => !!c.sourceItemId);
 
@@ -16,13 +18,13 @@ export default function MapaTab({ trip }: { trip: Trip }) {
   return (
     <div>
       <Header
-        title="La ruta"
-        subtitle={`${allCities.length} ${allCities.length === 1 ? "lugar" : "lugares"}`}
+        title={t("mapa.title")}
+        subtitle={`${allCities.length} ${allCities.length === 1 ? t("mapa.place_one") : t("mapa.places")}`}
       />
 
       {allCities.length === 0 ? (
         <div style={{ padding: "0 16px", color: C.inkSoft, fontSize: 13.5, lineHeight: 1.6 }}>
-          Los lugares aparecerán aquí automáticamente al añadir vuelos, hoteles y actividades con ubicación.
+          {t("mapa.empty")}
         </div>
       ) : (
         <div style={{ padding: "4px 16px 8px" }}>
@@ -36,6 +38,7 @@ export default function MapaTab({ trip }: { trip: Trip }) {
 }
 
 function CityCard({ city, index, last, trip }: { city: City; index: number; last: boolean; trip: Trip }) {
+  const { t } = useT();
   const sourceItem = city.sourceItemId
     ? trip.days.flatMap((d) => d.items).find((it) => it.id === city.sourceItemId)
     : undefined;
@@ -148,7 +151,7 @@ function CityCard({ city, index, last, trip }: { city: City; index: number; last
               borderRadius: 12,
             }}
           >
-            <MapPin size={14} /> Abrir en Google Maps <ExternalLink size={13} />
+            <MapPin size={14} /> {t("mapa.openMaps")} <ExternalLink size={13} />
           </a>
         </div>
       </div>
