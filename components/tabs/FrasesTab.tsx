@@ -7,9 +7,18 @@ import { speak } from "@/lib/format";
 import { Header } from "@/components/ui/Sections";
 import type { Trip } from "@/lib/types";
 import { useT } from "@/lib/i18n";
+import { SOURCE_I18N, CATEGORY_I18N } from "@/lib/phrases";
+import type { Locale } from "@/lib/i18n";
 
 export default function FrasesTab({ trip }: { trip: Trip }) {
-  const { t } = useT();
+  const { t, locale } = useT();
+
+  const getSource = (source: string) =>
+    locale === "es" ? source : (SOURCE_I18N[source]?.[locale as Exclude<Locale, "es">] ?? source);
+
+  const getCatLabel = (category: string) =>
+    locale === "es" ? category : (CATEGORY_I18N[category]?.[locale as Exclude<Locale, "es">] ?? category);
+
   const cats = useMemo(
     () => Array.from(new Set(trip.phrases.map((p) => p.category))),
     [trip.phrases]
@@ -20,7 +29,7 @@ export default function FrasesTab({ trip }: { trip: Trip }) {
   const list = trip.phrases.filter(
     (p) =>
       (cat === "" || p.category === cat) &&
-      (q === "" || (p.source + p.target).toLowerCase().includes(q.toLowerCase()))
+      (q === "" || (getSource(p.source) + p.target).toLowerCase().includes(q.toLowerCase()))
   );
 
   return (
@@ -54,7 +63,7 @@ export default function FrasesTab({ trip }: { trip: Trip }) {
               onClick={() => setCat(c)}
               style={{ flexShrink: 0, border: on ? "none" : `1px solid ${C.line}`, background: on ? C.ink : C.card, color: on ? "#fff" : C.inkSoft, fontWeight: 700, fontSize: 12.5, padding: "7px 14px", borderRadius: 999, cursor: "pointer" }}
             >
-              {c}
+              {getCatLabel(c)}
             </button>
           );
         })}
@@ -65,7 +74,7 @@ export default function FrasesTab({ trip }: { trip: Trip }) {
           <div key={p.id} style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 16, padding: 14, marginBottom: 10 }}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start" }}>
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 13, color: C.inkSoft, marginBottom: 3 }}>{p.source}</div>
+                <div style={{ fontSize: 13, color: C.inkSoft, marginBottom: 3 }}>{getSource(p.source)}</div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: C.ink }}>{p.target}</div>
               </div>
               <button

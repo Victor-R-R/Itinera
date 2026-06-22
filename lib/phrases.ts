@@ -287,6 +287,46 @@ const COUNTRY_MAP: Array<{ keys: string[]; speakLang: string; templates: PhraseT
   },
 ];
 
+// ─── Traducciones de los textos fuente por locale ────────────────────────────
+// El campo `source` de Phrase siempre se almacena en español (lengua base).
+// En display-time, FrasesTab usa este mapa para mostrar la frase en el idioma
+// del usuario sin necesidad de migrar datos en Supabase.
+
+export const SOURCE_I18N: Record<string, Partial<Record<"fr", string>>> = {
+  "Buenos días, ¿cómo está?": { fr: "Bonjour, comment allez-vous ?" },
+  "Buenos días.": { fr: "Bonjour." },
+  "Buenos días, gracias.": { fr: "Bonjour, merci." },
+  "Muchas gracias, muy amable.": { fr: "Merci beaucoup, c'est très aimable." },
+  "Muchas gracias.": { fr: "Merci beaucoup." },
+  "Por favor.": { fr: "S'il vous plaît." },
+  "De nada.": { fr: "De rien." },
+  "Una mesa para dos, por favor.": { fr: "Une table pour deux, s'il vous plaît." },
+  "¿Puede traernos la cuenta?": { fr: "L'addition, s'il vous plaît." },
+  "¿Tienen opciones sin gluten?": { fr: "Avez-vous des options sans gluten ?" },
+  "Está delicioso.": { fr: "C'est délicieux." },
+  "Tengo una reserva a nombre de…": { fr: "J'ai une réservation au nom de…" },
+  "¿A qué hora es el check-out?": { fr: "À quelle heure est le check-out ?" },
+  "¿Puede subir el equipaje a la habitación?": { fr: "Pouvez-vous monter les bagages dans la chambre ?" },
+  "¿Cómo llego al aeropuerto?": { fr: "Comment puis-je aller à l'aéroport ?" },
+  "¿Dónde está la parada de metro?": { fr: "Où est la station de métro ?" },
+  "¿Dónde está la estación?": { fr: "Où est la gare ?" },
+  "¿Cuánto cuesta esto?": { fr: "Combien ça coûte ?" },
+  "¿Aceptan tarjeta?": { fr: "Acceptez-vous la carte ?" },
+  "Necesito ayuda, por favor.": { fr: "J'ai besoin d'aide, s'il vous plaît." },
+  "¿Dónde está el hospital más cercano?": { fr: "Où est l'hôpital le plus proche ?" },
+  "He perdido mi pasaporte.": { fr: "J'ai perdu mon passeport." },
+  "Necesito un médico.": { fr: "J'ai besoin d'un médecin." },
+};
+
+export const CATEGORY_I18N: Record<string, Partial<Record<"fr", string>>> = {
+  "Saludos": { fr: "Salutations" },
+  "Restaurante": { fr: "Restaurant" },
+  "Hotel": { fr: "Hôtel" },
+  "Transporte": { fr: "Transport" },
+  "Compras": { fr: "Shopping" },
+  "Emergencias": { fr: "Urgences" },
+};
+
 /** Devuelve speakLang y phrases pre-pobladas para el país indicado.
  *  Si el país no se reconoce, usa inglés como fallback. */
 export const getCountryConfig = (country: string): CountryConfig => {
