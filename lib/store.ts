@@ -36,11 +36,12 @@ async function fetchWikipediaImage(cityRaw: string, title?: string): Promise<str
   );
 }
 
-async function fetchAllTrips(): Promise<Trip[]> {
+async function fetchAllTrips(userId: string): Promise<Trip[]> {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("trips")
     .select("trip_data")
+    .eq("user_id", userId)
     .order("created_at", { ascending: false });
   if (error || !data) return [];
   return data.map((row) => row.trip_data as Trip);
@@ -141,17 +142,21 @@ export const updateTrip = async (
   updater: (t: Trip) => Trip
 ): Promise<void> => {
   const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
   const { data, error } = await supabase
     .from("trips")
     .select("trip_data")
     .eq("id", id)
+    .eq("user_id", user.id)
     .single();
   if (error || !data) return;
   const updated = updater(data.trip_data as Trip);
   await supabase
     .from("trips")
     .update({ trip_data: updated, updated_at: new Date().toISOString() })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("user_id", user.id);
 };
 
 export const addDayToTrip = (tripId: string, day: TripDay): Promise<void> =>
@@ -216,7 +221,9 @@ export const deleteContact = (tripId: string, contactId: string): Promise<void> 
 
 export async function deleteTrip(id: string): Promise<void> {
   const supabase = createClient();
-  await supabase.from("trips").delete().eq("id", id);
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+  await supabase.from("trips").delete().eq("id", id).eq("user_id", user.id);
 }
 
 // ─── Hooks ───────────────────────────────────────────────────────────────────
@@ -227,31 +234,30 @@ export function useTrips(): { trips: Trip[]; ready: boolean; removeTrip: (id: st
 
   useEffect(() => {
     let mounted = true;
-
-    fetchAllTrips().then((data) => {
-      if (mounted) {
-        setTrips(data);
-        setReady(true);
-      }
-    });
-
     const supabase = createClient();
-    const channel = supabase
-      .channel("trips_realtime")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "trips" },
-        () => {
-          fetchAllTrips().then((data) => {
-            if (mounted) setTrips(data);
-          });
-        }
-      )
-      .subscribe();
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!mounted) return;
+      if (!user) { setReady(true); return; }
+
+      fetchAllTrips(user.id).then((data) => {
+        if (mounted) { setTrips(data); setReady(true); }
+      });
+
+      channel = supabase
+        .channel("trips_realtime")
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "trips", filter: `user_id=eq.${user.id}` },
+          () => { fetchAllTrips(user.id).then((data) => { if (mounted) setTrips(data); }); }
+        )
+        .subscribe();
+    });
 
     return () => {
       mounted = false;
-      supabase.removeChannel(channel);
+      if (channel) supabase.removeChannel(channel);
     };
   }, []);
 
