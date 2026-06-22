@@ -11,6 +11,7 @@ import type { Trip } from "./types";
 
 type TripRow = { user_id: string; trip_data: Trip };
 type SubRow = { user_id: string; endpoint: string; subscription: WPSubscription };
+type ProfileRow = { user_id: string; locale: string };
 
 export type CronMode = "main" | "early";
 
@@ -39,6 +40,16 @@ export const runNotificationCron = async (mode: CronMode) => {
     .from("push_subscriptions")
     .select("user_id, endpoint, subscription")
     .in("user_id", userIds);
+
+  const { data: profileRows } = await db
+    .from("profiles")
+    .select("user_id, locale")
+    .in("user_id", userIds);
+
+  const localeByUser: Record<string, string> = {};
+  for (const p of (profileRows as ProfileRow[]) ?? []) {
+    localeByUser[p.user_id] = p.locale;
+  }
 
   const subsByUser: Record<string, SubRow[]> = {};
   for (const row of (subRows as SubRow[]) ?? []) {
@@ -88,7 +99,8 @@ export const runNotificationCron = async (mode: CronMode) => {
         continue;
       }
 
-      const payload = buildNotification(trip, type);
+      const locale = localeByUser[row.user_id] ?? "es";
+      const payload = buildNotification(trip, type, locale);
       let sentCount = 0;
 
       for (const sub of subs) {

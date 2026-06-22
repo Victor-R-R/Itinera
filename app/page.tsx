@@ -14,7 +14,7 @@ import { useT } from "@/lib/i18n";
 export default function Home() {
   const { trips, ready, removeTrip } = useTrips();
   const user = useUser();
-  const { t } = useT();
+  const { t, locale, setLocale } = useT();
   const [dialog, setDialog] = useState(false);
 
   return (
@@ -48,6 +48,14 @@ export default function Home() {
               </div>
             </div>
             <PushNotificationToggle />
+            <button
+              onClick={() => setLocale(locale === "es" ? "fr" : "es")}
+              aria-label={locale === "es" ? "Changer en français" : "Cambiar a español"}
+              title={locale === "es" ? "Changer en français" : "Cambiar a español"}
+              style={{ width: 36, height: 36, borderRadius: 12, border: `1px solid ${C.line}`, background: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 18, lineHeight: 1 }}
+            >
+              {locale === "es" ? "🇫🇷" : "🇪🇸"}
+            </button>
             <button
               onClick={signOut}
               aria-label={t("home.signOut")}

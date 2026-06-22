@@ -1,18 +1,15 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, type ReactNode } from "react";
 import es from "../messages/es.json";
 import fr from "../messages/fr.json";
+import { useLocale } from "./store";
+import LocalePickerModal from "@/components/LocalePickerModal";
 
 export type Locale = "es" | "fr";
 
 const MESSAGES = { es, fr };
 const DATE_LOCALE: Record<Locale, string> = { es: "es-ES", fr: "fr-FR" };
-
-function detectLocale(): Locale {
-  if (typeof navigator === "undefined") return "es";
-  return navigator.language.toLowerCase().startsWith("fr") ? "fr" : "es";
-}
 
 function get(obj: unknown, path: string): string {
   const keys = path.split(".");
@@ -33,20 +30,21 @@ interface I18nCtx {
   t: TFn;
   locale: Locale;
   dateLocale: string;
+  setLocale: (l: Locale) => Promise<void>;
 }
 
 const I18nContext = createContext<I18nCtx>({
   t: (k) => k,
   locale: "es",
   dateLocale: "es-ES",
+  setLocale: async () => {},
 });
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocale] = useState<Locale>("es");
+  const { locale: storedLocale, setLocale, loading, isAuthenticated } = useLocale();
 
-  useEffect(() => {
-    setLocale(detectLocale());
-  }, []);
+  const locale = ((storedLocale ?? "es") as Locale);
+  const showPicker = !loading && storedLocale === null && isAuthenticated;
 
   const t: TFn = (key, params) => {
     let str = get(MESSAGES[locale], key) || get(MESSAGES.es, key) || key;
@@ -59,7 +57,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <I18nContext.Provider value={{ t, locale, dateLocale: DATE_LOCALE[locale] }}>
+    <I18nContext.Provider value={{ t, locale, dateLocale: DATE_LOCALE[locale], setLocale }}>
+      {showPicker && <LocalePickerModal onPick={setLocale} />}
       {children}
     </I18nContext.Provider>
   );

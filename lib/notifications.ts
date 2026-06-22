@@ -15,15 +15,21 @@ export type NotificationPayload = {
 
 export const buildNotification = (
   trip: Trip,
-  type: NotificationType
+  type: NotificationType,
+  locale = "es"
 ): NotificationPayload => {
   const dest = trip.country || trip.title;
   const icon = "/icon.png";
+  const fr = locale === "fr";
 
   if (type === "7days") {
     return {
-      title: `✈️ ¡Faltan 7 días para ${trip.title}!`,
-      body: `Tu aventura en ${dest} está a la vuelta de la esquina 🌍 Aprovecha para completar tu itinerario y añadir los detalles que no quieres olvidar ✍️`,
+      title: fr
+        ? `✈️ Plus que 7 jours avant ${trip.title} !`
+        : `✈️ ¡Faltan 7 días para ${trip.title}!`,
+      body: fr
+        ? `Votre aventure à ${dest} approche 🌍 Profitez-en pour compléter votre itinéraire et noter les détails importants ✍️`
+        : `Tu aventura en ${dest} está a la vuelta de la esquina 🌍 Aprovecha para completar tu itinerario y añadir los detalles que no quieres olvidar ✍️`,
       icon,
       url: "/",
     };
@@ -31,8 +37,12 @@ export const buildNotification = (
 
   if (type === "3days") {
     return {
-      title: `🎒 ¡Solo 3 días para ${trip.title}!`,
-      body: `Ya casi es hora de partir 🌟 Revisa las reservas, confirma los hoteles y ¡prepara esa maleta! 🧳`,
+      title: fr
+        ? `🎒 Plus que 3 jours avant ${trip.title} !`
+        : `🎒 ¡Solo 3 días para ${trip.title}!`,
+      body: fr
+        ? `L'heure du départ approche 🌟 Vérifiez les réservations, confirmez les hôtels et préparez la valise ! 🧳`
+        : `Ya casi es hora de partir 🌟 Revisa las reservas, confirma los hoteles y ¡prepara esa maleta! 🧳`,
       icon,
       url: "/",
     };
@@ -42,15 +52,21 @@ export const buildNotification = (
     const depTime = getDepartureTime(trip);
     if (depTime) {
       return {
-        title: `✨ ¡Hoy es el gran día! ✨`,
-        body: `Tu viaje a ${dest} sale a las ${depTime} 🛫 ¡Lleva el pasaporte, el buen humor y muchas ganas de aventura! 😄`,
+        title: fr ? `✨ C'est le grand jour ! ✨` : `✨ ¡Hoy es el gran día! ✨`,
+        body: fr
+          ? `Votre voyage vers ${dest} part à ${depTime} 🛫 Passeport, bonne humeur et envie d'aventure ! 😄`
+          : `Tu viaje a ${dest} sale a las ${depTime} 🛫 ¡Lleva el pasaporte, el buen humor y muchas ganas de aventura! 😄`,
         icon,
         url: `/trip/${trip.id}`,
       };
     }
     return {
-      title: `✨ ¡Hoy comienza ${trip.title}! ✨`,
-      body: `Este es el momento que tanto esperabas 🌟 ¡Que la aventura en ${dest} sea absolutamente increíble! 🗺️`,
+      title: fr
+        ? `✨ ${trip.title} commence aujourd'hui ! ✨`
+        : `✨ ¡Hoy comienza ${trip.title}! ✨`,
+      body: fr
+        ? `C'est le moment tant attendu 🌟 Que l'aventure à ${dest} soit absolument incroyable ! 🗺️`
+        : `Este es el momento que tanto esperabas 🌟 ¡Que la aventura en ${dest} sea absolutamente increíble! 🗺️`,
       icon,
       url: `/trip/${trip.id}`,
     };
@@ -63,8 +79,10 @@ export const buildNotification = (
 
   if (!day || day.items.length === 0) {
     return {
-      title: `🌅 ¡Buenos días en ${city}!`,
-      body: `Un día libre para explorar ${city} a tu ritmo 🌿 ¡Cada rincón guarda algo especial para ti!`,
+      title: fr ? `🌅 Bonjour depuis ${city} !` : `🌅 ¡Buenos días en ${city}!`,
+      body: fr
+        ? `Une journée libre pour explorer ${city} à votre rythme 🌿 Chaque coin cache quelque chose de spécial !`
+        : `Un día libre para explorar ${city} a tu ritmo 🌿 ¡Cada rincón guarda algo especial para ti!`,
       icon,
       url: `/trip/${trip.id}`,
     };
@@ -72,11 +90,15 @@ export const buildNotification = (
 
   const topItems = day.items.slice(0, 3).map((i) => i.title);
   const summary = topItems.join(" · ");
-  const extra = day.items.length > 3 ? ` y ${day.items.length - 3} más` : "";
+  const extra = day.items.length > 3
+    ? (fr ? ` et ${day.items.length - 3} de plus` : ` y ${day.items.length - 3} más`)
+    : "";
 
   return {
-    title: `🌅 ¡Buenos días en ${city}!`,
-    body: `Hoy te espera: ${summary}${extra} 🌟 ¡Que sea un día increíble!`,
+    title: fr ? `🌅 Bonjour depuis ${city} !` : `🌅 ¡Buenos días en ${city}!`,
+    body: fr
+      ? `Au programme aujourd'hui : ${summary}${extra} 🌟 Passez une journée incroyable !`
+      : `Hoy te espera: ${summary}${extra} 🌟 ¡Que sea un día increíble!`,
     icon,
     url: `/trip/${trip.id}`,
   };

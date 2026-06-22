@@ -310,3 +310,50 @@ export async function signOut(): Promise<void> {
   await supabase.auth.signOut();
   window.location.href = "/login";
 }
+
+// ─── Locale ───────────────────────────────────────────────────────────────────
+
+const LOCALE_CACHE_KEY = "itinera_locale";
+
+export function useLocale(): {
+  locale: string | null;
+  setLocale: (l: string) => Promise<void>;
+  loading: boolean;
+  isAuthenticated: boolean;
+} {
+  const cached = typeof window !== "undefined" ? localStorage.getItem(LOCALE_CACHE_KEY) : null;
+  const [locale, setLocaleState] = useState<string | null>(cached);
+  const [loading, setLoading] = useState(!cached);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) { setLoading(false); return; }
+      setIsAuthenticated(true);
+      const { data } = await supabase
+        .from("profiles")
+        .select("locale")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      const l = data?.locale ?? null;
+      if (l) localStorage.setItem(LOCALE_CACHE_KEY, l);
+      setLocaleState(l);
+      setLoading(false);
+    });
+  }, []);
+
+  const setLocale = async (l: string) => {
+    setLocaleState(l);
+    localStorage.setItem(LOCALE_CACHE_KEY, l);
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    await supabase.from("profiles").upsert(
+      { user_id: user.id, locale: l, updated_at: new Date().toISOString() },
+      { onConflict: "user_id" }
+    );
+  };
+
+  return { locale, setLocale, loading, isAuthenticated };
+}
