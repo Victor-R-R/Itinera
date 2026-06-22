@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Trip, TripDay, ItineraryItem, City, Contact, NewTripInput, TransportMode, ItemType } from "./types";
 import { uid, generateTripDays } from "./format";
@@ -36,15 +36,14 @@ async function fetchWikipediaImage(cityRaw: string, title?: string): Promise<str
   );
 }
 
-async function fetchAllTrips(userId: string): Promise<Trip[]> {
+async function fetchAllTrips(): Promise<{ trip: Trip; ownerId: string }[]> {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("trips")
-    .select("trip_data")
-    .eq("user_id", userId)
+    .select("trip_data, user_id")
     .order("created_at", { ascending: false });
   if (error || !data) return [];
-  return data.map((row) => row.trip_data as Trip);
+  return data.map((row) => ({ trip: row.trip_data as Trip, ownerId: row.user_id as string }));
 }
 
 // ─── Mutations ───────────────────────────────────────────────────────────────
@@ -144,19 +143,18 @@ export const updateTrip = async (
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
+  // No user_id filter — RLS handles access (owner + collaborators)
   const { data, error } = await supabase
     .from("trips")
     .select("trip_data")
     .eq("id", id)
-    .eq("user_id", user.id)
     .single();
   if (error || !data) return;
   const updated = updater(data.trip_data as Trip);
   await supabase
     .from("trips")
     .update({ trip_data: updated, updated_at: new Date().toISOString() })
-    .eq("id", id)
-    .eq("user_id", user.id);
+    .eq("id", id);
 };
 
 export const addDayToTrip = (tripId: string, day: TripDay): Promise<void> =>
@@ -226,11 +224,83 @@ export async function deleteTrip(id: string): Promise<void> {
   await supabase.from("trips").delete().eq("id", id).eq("user_id", user.id);
 }
 
+// ─── Sharing ─────────────────────────────────────────────────────────────────
+
+const SHARE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+function makeShareCode(): string {
+  const rand = (n: number) => Math.floor(Math.random() * n);
+  const part = () =>
+    Array.from({ length: 4 }, () => SHARE_ALPHABET[rand(SHARE_ALPHABET.length)]).join("");
+  return `${part()}-${part()}`;
+}
+
+export async function getOrCreateShareCode(tripId: string): Promise<string> {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("trips")
+    .select("share_code")
+    .eq("id", tripId)
+    .single();
+  if (data?.share_code) return data.share_code as string;
+  const code = makeShareCode();
+  await supabase.from("trips").update({ share_code: code }).eq("id", tripId);
+  return code;
+}
+
+export async function joinTripByCode(rawCode: string): Promise<Trip> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("No autenticado");
+
+  const code = rawCode.trim().toUpperCase();
+  const { data: tripRow, error } = await supabase
+    .from("trips")
+    .select("id, user_id, trip_data")
+    .eq("share_code", code)
+    .single();
+
+  if (error || !tripRow) throw new Error("invalid_code");
+  if (tripRow.user_id === user.id) throw new Error("already_owner");
+
+  const { error: collabError } = await supabase
+    .from("trip_collaborators")
+    .upsert({ trip_id: tripRow.id, user_id: user.id }, { onConflict: "trip_id,user_id" });
+  if (collabError) throw collabError;
+
+  return tripRow.trip_data as Trip;
+}
+
+export async function leaveSharedTrip(tripId: string): Promise<void> {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+  await supabase
+    .from("trip_collaborators")
+    .delete()
+    .eq("trip_id", tripId)
+    .eq("user_id", user.id);
+}
+
 // ─── Hooks ───────────────────────────────────────────────────────────────────
 
-export function useTrips(): { trips: Trip[]; ready: boolean; removeTrip: (id: string) => Promise<void> } {
+export function useTrips(): {
+  trips: Trip[];
+  collaboratorTripIds: Set<string>;
+  ready: boolean;
+  removeTrip: (id: string) => Promise<void>;
+  leaveTrip: (id: string) => Promise<void>;
+} {
   const [trips, setTrips] = useState<Trip[]>([]);
+  const [collaboratorTripIds, setCollaboratorTripIds] = useState<Set<string>>(new Set());
   const [ready, setReady] = useState(false);
+  const userIdRef = useRef<string | null>(null);
+
+  const applyRows = useCallback((rows: { trip: Trip; ownerId: string }[]) => {
+    const uid = userIdRef.current;
+    setTrips(rows.map((r) => r.trip));
+    setCollaboratorTripIds(new Set(rows.filter((r) => r.ownerId !== uid).map((r) => r.trip.id)));
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -240,17 +310,26 @@ export function useTrips(): { trips: Trip[]; ready: boolean; removeTrip: (id: st
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!mounted) return;
       if (!user) { setReady(true); return; }
+      userIdRef.current = user.id;
 
-      fetchAllTrips(user.id).then((data) => {
-        if (mounted) { setTrips(data); setReady(true); }
+      fetchAllTrips().then((data) => {
+        if (mounted) { applyRows(data); setReady(true); }
       });
+
+      const refetch = () =>
+        fetchAllTrips().then((data) => { if (mounted) applyRows(data); });
 
       channel = supabase
         .channel("trips_realtime")
         .on(
           "postgres_changes",
           { event: "*", schema: "public", table: "trips", filter: `user_id=eq.${user.id}` },
-          () => { fetchAllTrips(user.id).then((data) => { if (mounted) setTrips(data); }); }
+          refetch
+        )
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "trip_collaborators", filter: `user_id=eq.${user.id}` },
+          refetch
         )
         .subscribe();
     });
@@ -259,14 +338,20 @@ export function useTrips(): { trips: Trip[]; ready: boolean; removeTrip: (id: st
       mounted = false;
       if (channel) supabase.removeChannel(channel);
     };
-  }, []);
+  }, [applyRows]);
 
   const removeTrip = useCallback(async (id: string) => {
     setTrips((prev) => prev.filter((t) => t.id !== id));
     await deleteTrip(id);
   }, []);
 
-  return { trips, ready, removeTrip };
+  const leaveTrip = useCallback(async (id: string) => {
+    setTrips((prev) => prev.filter((t) => t.id !== id));
+    setCollaboratorTripIds((prev) => { const s = new Set(prev); s.delete(id); return s; });
+    await leaveSharedTrip(id);
+  }, []);
+
+  return { trips, collaboratorTripIds, ready, removeTrip, leaveTrip };
 }
 
 export function useTrip(id: string): { trip: Trip | undefined; ready: boolean } {

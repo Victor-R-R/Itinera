@@ -178,6 +178,26 @@
     "edit": "Editar viaje",
     "delete": "Eliminar viaje",
     "deleteTitle": "¿Eliminar viaje?",
-    "deleteButton": "Eliminar"
+    "deleteButton": "Eliminar",
+    "share": "Compartir",
+    "sharedBadge": "Compartido",
+    "leaveTrip": "Abandonar viaje",
+    "leaveTitle": "¿Abandonar este viaje?",
+    "leaveButton": "Abandonar"
+  },
+  "share": {
+    "joinButton": "Unirme a un viaje",
+    "modalTitle": "Compartir viaje",
+    "codeLabel": "Código de acceso",
+    "copyCode": "Copiar",
+    "copied": "¡Copiado!",
+    "generating": "Generando código…",
+    "info": "Comparte este código con los demás viajeros. Cualquier cambio se verá en tiempo real.",
+    "joinTitle": "Unirme a un viaje",
+    "joinPlaceholder": "XXXX-XXXX",
+    "joinAction": "Unirme",
+    "joining": "Uniéndome…",
+    "joinError": "Código no válido o ya estás en este viaje.",
+    "close": "Cerrar"
   }
 }

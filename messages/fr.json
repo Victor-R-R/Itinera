@@ -178,6 +178,26 @@
     "edit": "Modifier le voyage",
     "delete": "Supprimer le voyage",
     "deleteTitle": "Supprimer ce voyage ?",
-    "deleteButton": "Supprimer"
+    "deleteButton": "Supprimer",
+    "share": "Partager",
+    "sharedBadge": "Partagé",
+    "leaveTrip": "Quitter le voyage",
+    "leaveTitle": "Quitter ce voyage ?",
+    "leaveButton": "Quitter"
+  },
+  "share": {
+    "joinButton": "Rejoindre un voyage",
+    "modalTitle": "Partager le voyage",
+    "codeLabel": "Code d'accès",
+    "copyCode": "Copier",
+    "copied": "Copié !",
+    "generating": "Génération du code…",
+    "info": "Partagez ce code avec les autres voyageurs. Toute modification sera visible en temps réel.",
+    "joinTitle": "Rejoindre un voyage",
+    "joinPlaceholder": "XXXX-XXXX",
+    "joinAction": "Rejoindre",
+    "joining": "En cours…",
+    "joinError": "Code invalide ou vous faites déjà partie de ce voyage.",
+    "close": "Fermer"
   }
 }

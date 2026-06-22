@@ -1,21 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, LogOut, MapPin } from "lucide-react";
+import { Plus, LogOut, MapPin, Users } from "lucide-react";
 import Image from "next/image";
 import PhoneFrame from "@/components/PhoneFrame";
 import TripCard from "@/components/trips/TripCard";
 import NewTripDialog from "@/components/trips/NewTripDialog";
+import JoinTripDialog from "@/components/trips/JoinTripDialog";
 import PushNotificationToggle from "@/components/PushNotificationToggle";
 import { useTrips, useUser, signOut } from "@/lib/store";
 import { C, FONT_DISPLAY, FONT_SANS } from "@/lib/theme";
 import { useT } from "@/lib/i18n";
 
 export default function Home() {
-  const { trips, ready, removeTrip } = useTrips();
+  const { trips, collaboratorTripIds, ready, removeTrip, leaveTrip } = useTrips();
   const user = useUser();
   const { t, locale, setLocale } = useT();
   const [dialog, setDialog] = useState(false);
+  const [joining, setJoining] = useState(false);
 
   return (
     <PhoneFrame bg="linear-gradient(180deg,#FBF4EE 0%,#F4E6DE 100%)">
@@ -101,24 +103,41 @@ export default function Home() {
           ) : trips.length === 0 ? (
             <div style={{ textAlign: "center", padding: "40px 10px", color: C.inkSoft }}>
               <div style={{ fontSize: 14.5, marginBottom: 14 }}>{t("home.noTrips")}</div>
-              <button onClick={() => setDialog(true)} style={btnPrimary}>
-                <Plus size={18} /> {t("home.createFirst")}
-              </button>
+              <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+                <button onClick={() => setDialog(true)} style={btnPrimary}>
+                  <Plus size={18} /> {t("home.createFirst")}
+                </button>
+                <button onClick={() => setJoining(true)} style={btnSecondary}>
+                  <Users size={18} /> {t("share.joinButton")}
+                </button>
+              </div>
             </div>
           ) : (
             <>
               {trips.map((tr) => (
-                <TripCard key={tr.id} trip={tr} onDelete={removeTrip} />
+                <TripCard
+                  key={tr.id}
+                  trip={tr}
+                  isCollaborator={collaboratorTripIds.has(tr.id)}
+                  onDelete={removeTrip}
+                  onLeave={leaveTrip}
+                />
               ))}
-              <button onClick={() => setDialog(true)} style={{ ...btnPrimary, width: "100%", marginTop: 4 }}>
-                <Plus size={18} /> {t("home.newTrip")}
-              </button>
+              <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+                <button onClick={() => setDialog(true)} style={{ ...btnPrimary, flex: 1 }}>
+                  <Plus size={18} /> {t("home.newTrip")}
+                </button>
+                <button onClick={() => setJoining(true)} style={{ ...btnSecondary }}>
+                  <Users size={18} />
+                </button>
+              </div>
             </>
           )}
         </div>
       </div>
 
       {dialog && <NewTripDialog onClose={() => setDialog(false)} />}
+      {joining && <JoinTripDialog onClose={() => setJoining(false)} />}
     </PhoneFrame>
   );
 }
@@ -150,4 +169,20 @@ const btnPrimary: React.CSSProperties = {
   color: "#fff",
   background: C.rose,
   cursor: "pointer",
+};
+
+const btnSecondary: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 7,
+  border: `1.5px solid ${C.dusk}`,
+  borderRadius: 14,
+  padding: "13px 16px",
+  fontSize: 15,
+  fontWeight: 700,
+  color: C.dusk,
+  background: "rgba(63,110,140,0.08)",
+  cursor: "pointer",
+  flexShrink: 0,
 };
