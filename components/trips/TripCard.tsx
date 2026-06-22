@@ -82,7 +82,7 @@ export default function TripCard({
           )}
 
           {/* Action buttons */}
-          <div style={{ position: "absolute", top: 10, right: 10, display: "flex", gap: 6 }}>
+          <div style={{ position: "absolute", top: 10, right: 10, display: "flex", gap: 6, alignItems: "center" }}>
             {!isCollaborator && (
               <>
                 <button
