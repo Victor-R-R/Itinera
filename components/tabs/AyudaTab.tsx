@@ -10,6 +10,8 @@ import { addContact, deleteContact } from "@/lib/store";
 import { uid } from "@/lib/format";
 import type { Trip, Contact, ContactKind } from "@/lib/types";
 import { useT } from "@/lib/i18n";
+import type { Locale } from "@/lib/i18n";
+import { EMERGENCY_LABEL_I18N, CONTACT_LABEL_I18N } from "@/lib/countries";
 
 // ─── Static maps ─────────────────────────────────────────────────────────────
 
@@ -66,7 +68,11 @@ const inputStyle: React.CSSProperties = {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function AyudaTab({ trip }: { trip: Trip }) {
-  const { t } = useT();
+  const { t, locale } = useT();
+
+  const tr = (map: Record<string, Partial<Record<"fr", string>>>, text: string) =>
+    locale === "es" ? text : (map[text]?.[locale as Exclude<Locale, "es">] ?? text);
+
   const kindOptions = KIND_ORDER.map((kind) => ({ kind, label: t(`ayuda.kind_${kind}`) }));
   const [adding, setAdding] = useState(false);
   const [kind, setKind] = useState<ContactKind>("insurance");
@@ -123,7 +129,7 @@ export default function AyudaTab({ trip }: { trip: Trip }) {
             <div style={{ fontFamily: FONT_DISPLAY, fontSize: 30, fontWeight: 600, lineHeight: 1 }}>
               {trip.emergencyNumber}
             </div>
-            <div style={{ fontSize: 12.5, opacity: 0.92 }}>{trip.emergencyLabel}</div>
+            <div style={{ fontSize: 12.5, opacity: 0.92 }}>{tr(EMERGENCY_LABEL_I18N, trip.emergencyLabel)}</div>
           </div>
         </a>
       </div>
@@ -253,7 +259,7 @@ export default function AyudaTab({ trip }: { trip: Trip }) {
                     <Icon size={19} color={col} />
                   </div>
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <div style={{ fontSize: 14, fontWeight: 700 }}>{c.label}</div>
+                    <div style={{ fontSize: 14, fontWeight: 700 }}>{tr(CONTACT_LABEL_I18N, c.label)}</div>
                     {c.note && (
                       <div style={{ fontSize: 11.5, color: C.inkSoft, marginTop: 1 }}>{c.note}</div>
                     )}

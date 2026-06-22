@@ -409,3 +409,64 @@ export const buildDefaultContacts = (country: string): Contact[] => {
   if (!data.consulate) return [];
   return [{ id: uid(), ...data.consulate }];
 };
+
+// ─── Traducciones display-time ────────────────────────────────────────────────
+// Los datos se almacenan en español en Supabase (lengua base).
+// Estos mapas permiten traducir al locale del usuario sin migrar datos.
+
+export const EMERGENCY_LABEL_I18N: Record<string, Partial<Record<"fr", string>>> = {
+  "Emergencias EEUU":                 { fr: "Urgences USA" },
+  "Emergencias Reino Unido":          { fr: "Urgences Royaume-Uni" },
+  "Emergencias Australia":            { fr: "Urgences Australie" },
+  "Emergencias Canadá":               { fr: "Urgences Canada" },
+  "Emergencias Nueva Zelanda":        { fr: "Urgences Nouvelle-Zélande" },
+  "Número europeo de emergencias":    { fr: "Numéro européen d'urgence" },
+  "Ambulancia / Bomberos Japón":      { fr: "Ambulance / Pompiers Japon" },
+  "Ambulancia China":                 { fr: "Ambulance Chine" },
+  "Ambulancia / Bomberos Corea":      { fr: "Ambulance / Pompiers Corée" },
+  "Ambulancia Tailandia":             { fr: "Ambulance Thaïlande" },
+  "Ambulancia Marruecos":             { fr: "Ambulance Maroc" },
+  "Ambulancia Egipto":                { fr: "Ambulance Égypte" },
+  "Emergencias Emiratos":             { fr: "Urgences Émirats" },
+  "Emergencias Turquía":              { fr: "Urgences Turquie" },
+  "Emergencias México":               { fr: "Urgences Mexique" },
+  "Emergencias Argentina":            { fr: "Urgences Argentine" },
+  "Ambulancia Brasil":                { fr: "Ambulance Brésil" },
+  "Emergencias Colombia":             { fr: "Urgences Colombie" },
+  "Ambulancia Perú":                  { fr: "Ambulance Pérou" },
+  "Emergencias India":                { fr: "Urgences Inde" },
+  "Emergencias Irlanda":              { fr: "Urgences Irlande" },
+  "Número de emergencias":            { fr: "Numéro d'urgence" },
+};
+
+export const CONTACT_LABEL_I18N: Record<string, Partial<Record<"fr", string>>> = {
+  "Embajada de España en Washington":    { fr: "Ambassade d'Espagne à Washington" },
+  "Embajada de España en Londres":       { fr: "Ambassade d'Espagne à Londres" },
+  "Embajada de España en Camberra":      { fr: "Ambassade d'Espagne à Canberra" },
+  "Embajada de España en Ottawa":        { fr: "Ambassade d'Espagne à Ottawa" },
+  "Embajada de España en Wellington":    { fr: "Ambassade d'Espagne à Wellington" },
+  "Embajada de España en París":         { fr: "Ambassade d'Espagne à Paris" },
+  "Embajada de España en Berlín":        { fr: "Ambassade d'Espagne à Berlin" },
+  "Embajada de España en Roma":          { fr: "Ambassade d'Espagne à Rome" },
+  "Embajada de España en Lisboa":        { fr: "Ambassade d'Espagne à Lisbonne" },
+  "Embajada de España en Atenas":        { fr: "Ambassade d'Espagne à Athènes" },
+  "Embajada de España en La Haya":       { fr: "Ambassade d'Espagne à La Haye" },
+  "Embajada de España en Bruselas":      { fr: "Ambassade d'Espagne à Bruxelles" },
+  "Embajada de España en Viena":         { fr: "Ambassade d'Espagne à Vienne" },
+  "Embajada de España en Berna":         { fr: "Ambassade d'Espagne à Berne" },
+  "Embajada de España en Tokio":         { fr: "Ambassade d'Espagne à Tokyo" },
+  "Embajada de España en Pekín":         { fr: "Ambassade d'Espagne à Pékin" },
+  "Embajada de España en Seúl":          { fr: "Ambassade d'Espagne à Séoul" },
+  "Embajada de España en Bangkok":       { fr: "Ambassade d'Espagne à Bangkok" },
+  "Embajada de España en Rabat":         { fr: "Ambassade d'Espagne à Rabat" },
+  "Embajada de España en El Cairo":      { fr: "Ambassade d'Espagne au Caire" },
+  "Embajada de España en Abu Dabi":      { fr: "Ambassade d'Espagne à Abou Dhabi" },
+  "Embajada de España en Ankara":        { fr: "Ambassade d'Espagne à Ankara" },
+  "Embajada de España en Ciudad de México": { fr: "Ambassade d'Espagne à Mexico" },
+  "Embajada de España en Buenos Aires":  { fr: "Ambassade d'Espagne à Buenos Aires" },
+  "Embajada de España en Brasilia":      { fr: "Ambassade d'Espagne à Brasilia" },
+  "Embajada de España en Bogotá":        { fr: "Ambassade d'Espagne à Bogotá" },
+  "Embajada de España en Lima":          { fr: "Ambassade d'Espagne à Lima" },
+  "Embajada de España en Nueva Delhi":   { fr: "Ambassade d'Espagne à New Delhi" },
+  "Embajada de España en Dublín":        { fr: "Ambassade d'Espagne à Dublin" },
+};
