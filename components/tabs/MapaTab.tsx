@@ -85,7 +85,7 @@ function CityCard({ city, index, last, trip }: { city: City; index: number; last
                     marginBottom: 6,
                   }}
                 >
-                  {meta.label}
+                  {t(`itemType.${sourceItem!.type}`)}
                 </span>
               )}
               <h3

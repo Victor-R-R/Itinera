@@ -103,7 +103,7 @@ export default function AddItemDialog({
       note: note.trim() || undefined,
       location: location.trim() || undefined,
     });
-    sileo.success({ title: TYPE_META[type].label, description: title.trim() });
+    sileo.success({ title: t(`itemType.${type}`), description: title.trim() });
     onClose();
   };
 
@@ -180,7 +180,7 @@ export default function AddItemDialog({
                       letterSpacing: 0.3,
                     }}
                   >
-                    {m.label}
+                    {t(`itemType.${typ}`)}
                   </span>
                 </button>
               );

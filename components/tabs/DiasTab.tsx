@@ -233,7 +233,7 @@ function TimelineItem({
       <div style={{ flex: 1, paddingBottom: last ? 0 : 16, minWidth: 0 }}>
         <div style={{ background: C.card, border: `1px solid ${C.line}`, borderRadius: 16, padding: 14, position: "relative" }}>
           <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "baseline" }}>
-            <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: 0.6, textTransform: "uppercase", color: m.color }}>{m.label}</span>
+            <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: 0.6, textTransform: "uppercase", color: m.color }}>{t(`itemType.${it.type}`)}</span>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <span style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12.5, fontWeight: 700, color: C.ink }}>
                 <Clock size={12} color={C.inkSoft} /> {it.time}

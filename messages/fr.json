@@ -165,6 +165,15 @@
     "phLocation": "Aéroport JFK, Hôtel Marriott…",
     "add": "Ajouter à l'itinéraire"
   },
+  "itemType": {
+    "flight": "Vol",
+    "hotel": "Hôtel",
+    "activity": "Visite",
+    "transfer": "Transfert",
+    "free": "Libre",
+    "train": "Train",
+    "ship": "Bateau"
+  },
   "tripCard": {
     "edit": "Modifier le voyage",
     "delete": "Supprimer le voyage",
