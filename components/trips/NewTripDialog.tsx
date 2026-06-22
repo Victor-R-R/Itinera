@@ -7,6 +7,7 @@ import { sileo } from "sileo";
 import { C, FONT_DISPLAY, FONT_SANS } from "@/lib/theme";
 import { createTrip } from "@/lib/store";
 import { todayIso } from "@/lib/format";
+import { useT } from "@/lib/i18n";
 import type { TransportMode } from "@/lib/types";
 
 // ─── Nominatim autocomplete ───────────────────────────────────────────────────
@@ -95,14 +96,14 @@ function CityInput({ value, onChange, placeholder }: {
   );
 }
 
-// ─── Transport modes ──────────────────────────────────────────────────────────
+// ─── Transport modes (static icons, labels from i18n) ────────────────────────
 
-const TRANSPORT_MODES: { mode: TransportMode; label: string; Icon: React.ElementType }[] = [
-  { mode: "plane", label: "Avión", Icon: Plane },
-  { mode: "car", label: "Coche", Icon: Car },
-  { mode: "train", label: "Tren", Icon: Train },
-  { mode: "ship", label: "Barco", Icon: Ship },
-  { mode: "other", label: "Otro", Icon: MoreHorizontal },
+const TRANSPORT_ICONS: { mode: TransportMode; Icon: React.ElementType }[] = [
+  { mode: "plane", Icon: Plane },
+  { mode: "car", Icon: Car },
+  { mode: "train", Icon: Train },
+  { mode: "ship", Icon: Ship },
+  { mode: "other", Icon: MoreHorizontal },
 ];
 
 // ─── Shared styles ────────────────────────────────────────────────────────────
@@ -132,6 +133,7 @@ const labelStyle: React.CSSProperties = {
 
 export default function NewTripDialog({ onClose }: { onClose: () => void }) {
   const router = useRouter();
+  const { t } = useT();
   const [title, setTitle] = useState("");
   const [tagline, setTagline] = useState("");
   const [travelers, setTravelers] = useState("");
@@ -154,10 +156,10 @@ export default function NewTripDialog({ onClose }: { onClose: () => void }) {
         destinationCity: destinationCity.trim() || undefined,
       });
       onClose();
-      sileo.success({ title: "Viaje creado", description: trip.title });
+      sileo.success({ title: t("newTrip.successTitle"), description: trip.title });
       router.push(`/trip/${trip.id}`);
     } catch {
-      sileo.error({ title: "Error", description: "No se pudo crear el viaje" });
+      sileo.error({ title: "Error", description: t("newTrip.errorDesc") });
       setSaving(false);
     }
   };
@@ -172,8 +174,8 @@ export default function NewTripDialog({ onClose }: { onClose: () => void }) {
         style={{ width: "100%", maxWidth: 400, background: "#fff", borderRadius: 24, padding: "22px 22px 28px", boxShadow: "0 30px 70px -20px rgba(44,26,46,.5)", maxHeight: "90vh", overflowY: "auto" }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
-          <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 600, fontSize: 22, margin: 0 }}>Nuevo viaje</h2>
-          <button onClick={onClose} aria-label="Cerrar" style={{ border: "none", background: "transparent", cursor: "pointer", padding: 4 }}>
+          <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 600, fontSize: 22, margin: 0 }}>{t("newTrip.title")}</h2>
+          <button onClick={onClose} aria-label={t("newTrip.close")} style={{ border: "none", background: "transparent", cursor: "pointer", padding: 4 }}>
             <X size={22} color={C.inkSoft} />
           </button>
         </div>
@@ -181,25 +183,25 @@ export default function NewTripDialog({ onClose }: { onClose: () => void }) {
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
 
           <div>
-            <label style={labelStyle}>Título *</label>
-            <input style={inputStyle} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ej. Costa a costa" autoFocus />
+            <label style={labelStyle}>{t("newTrip.labelTitle")}</label>
+            <input style={inputStyle} value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t("newTrip.phTitle")} autoFocus />
           </div>
 
           <div style={{ display: "flex", gap: 10 }}>
             <div style={{ flex: 1 }}>
-              <label style={labelStyle}>Etiqueta</label>
-              <input style={inputStyle} value={tagline} onChange={(e) => setTagline(e.target.value)} placeholder="Luna de miel" />
+              <label style={labelStyle}>{t("newTrip.labelTagline")}</label>
+              <input style={inputStyle} value={tagline} onChange={(e) => setTagline(e.target.value)} placeholder={t("newTrip.phTagline")} />
             </div>
             <div style={{ flex: 1 }}>
-              <label style={labelStyle}>País</label>
-              <input style={inputStyle} value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Estados Unidos" />
+              <label style={labelStyle}>{t("newTrip.labelCountry")}</label>
+              <input style={inputStyle} value={country} onChange={(e) => setCountry(e.target.value)} placeholder={t("newTrip.phCountry")} />
             </div>
           </div>
 
           <div>
-            <label style={labelStyle}>Medio de transporte</label>
+            <label style={labelStyle}>{t("newTrip.labelTransport")}</label>
             <div style={{ display: "flex", gap: 6 }}>
-              {TRANSPORT_MODES.map(({ mode, label, Icon }) => {
+              {TRANSPORT_ICONS.map(({ mode, Icon }) => {
                 const on = mode === transport;
                 return (
                   <button
@@ -208,7 +210,7 @@ export default function NewTripDialog({ onClose }: { onClose: () => void }) {
                     style={{ flex: 1, borderRadius: 12, border: on ? `2px solid ${C.dusk}` : `1px solid ${C.line}`, background: on ? "#EAF1F6" : "#fff", padding: "9px 4px 7px", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, cursor: "pointer", transition: "all .15s" }}
                   >
                     <Icon size={18} color={on ? C.dusk : C.inkSoft} />
-                    <span style={{ fontSize: 9, fontWeight: 800, color: on ? C.dusk : C.inkSoft, textAlign: "center", lineHeight: 1.2, textTransform: "uppercase", letterSpacing: 0.3 }}>{label}</span>
+                    <span style={{ fontSize: 9, fontWeight: 800, color: on ? C.dusk : C.inkSoft, textAlign: "center", lineHeight: 1.2, textTransform: "uppercase", letterSpacing: 0.3 }}>{t(`newTrip.transport_${mode}`)}</span>
                   </button>
                 );
               })}
@@ -217,24 +219,24 @@ export default function NewTripDialog({ onClose }: { onClose: () => void }) {
 
           <div style={{ display: "flex", gap: 10, alignItems: "flex-end" }}>
             <div style={{ flex: 1 }}>
-              <label style={labelStyle}>Origen</label>
-              <CityInput value={originCity} onChange={setOriginCity} placeholder="Madrid" />
+              <label style={labelStyle}>{t("newTrip.labelOrigin")}</label>
+              <CityInput value={originCity} onChange={setOriginCity} placeholder={t("newTrip.phOrigin")} />
             </div>
             <div style={{ paddingBottom: 11, color: C.inkSoft, fontSize: 18, lineHeight: 1 }}>→</div>
             <div style={{ flex: 1 }}>
-              <label style={labelStyle}>Destino</label>
-              <CityInput value={destinationCity} onChange={setDestinationCity} placeholder="Nueva York" />
+              <label style={labelStyle}>{t("newTrip.labelDestination")}</label>
+              <CityInput value={destinationCity} onChange={setDestinationCity} placeholder={t("newTrip.phDestination")} />
             </div>
           </div>
 
           <div>
-            <label style={labelStyle}>Viajeros</label>
-            <input style={inputStyle} value={travelers} onChange={(e) => setTravelers(e.target.value)} placeholder="Lucía & Daniel" />
+            <label style={labelStyle}>{t("newTrip.labelTravelers")}</label>
+            <input style={inputStyle} value={travelers} onChange={(e) => setTravelers(e.target.value)} placeholder={t("newTrip.phTravelers")} />
           </div>
 
           <div style={{ display: "flex", gap: 10 }}>
             <div style={{ flex: 1 }}>
-              <label style={labelStyle}>Inicio</label>
+              <label style={labelStyle}>{t("newTrip.labelStart")}</label>
               <input
                 type="date"
                 style={inputStyle}
@@ -243,7 +245,7 @@ export default function NewTripDialog({ onClose }: { onClose: () => void }) {
               />
             </div>
             <div style={{ flex: 1 }}>
-              <label style={labelStyle}>Fin</label>
+              <label style={labelStyle}>{t("newTrip.labelEnd")}</label>
               <input
                 type="date"
                 style={inputStyle}
@@ -260,7 +262,7 @@ export default function NewTripDialog({ onClose }: { onClose: () => void }) {
           disabled={!title.trim() || saving}
           style={{ width: "100%", marginTop: 20, border: "none", borderRadius: 14, padding: "13px 0", fontFamily: FONT_SANS, fontSize: 15, fontWeight: 700, color: "#fff", cursor: title.trim() && !saving ? "pointer" : "not-allowed", background: title.trim() && !saving ? C.rose : "#D9C7C0" }}
         >
-          {saving ? "Creando…" : "Crear viaje"}
+          {saving ? t("newTrip.creating") : t("newTrip.create")}
         </button>
       </div>
     </div>

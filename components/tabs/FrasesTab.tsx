@@ -6,24 +6,26 @@ import { C, FONT_SANS } from "@/lib/theme";
 import { speak } from "@/lib/format";
 import { Header } from "@/components/ui/Sections";
 import type { Trip } from "@/lib/types";
+import { useT } from "@/lib/i18n";
 
 export default function FrasesTab({ trip }: { trip: Trip }) {
+  const { t } = useT();
   const cats = useMemo(
-    () => ["Todas", ...Array.from(new Set(trip.phrases.map((p) => p.category)))],
+    () => Array.from(new Set(trip.phrases.map((p) => p.category))),
     [trip.phrases]
   );
-  const [cat, setCat] = useState("Todas");
+  const [cat, setCat] = useState("");
   const [q, setQ] = useState("");
 
   const list = trip.phrases.filter(
     (p) =>
-      (cat === "Todas" || p.category === cat) &&
+      (cat === "" || p.category === cat) &&
       (q === "" || (p.source + p.target).toLowerCase().includes(q.toLowerCase()))
   );
 
   return (
     <div>
-      <Header title="Frases útiles" subtitle="Toca 🔊 para escuchar la pronunciación" />
+      <Header title={t("frases.title")} subtitle={t("frases.subtitle")} />
 
       <div style={{ padding: "0 16px 10px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, background: C.card, border: `1px solid ${C.line}`, borderRadius: 14, padding: "10px 12px" }}>
@@ -31,13 +33,19 @@ export default function FrasesTab({ trip }: { trip: Trip }) {
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Buscar una frase…"
+            placeholder={t("frases.search")}
             style={{ border: "none", outline: "none", flex: 1, fontFamily: FONT_SANS, fontSize: 14, color: C.ink, background: "transparent" }}
           />
         </div>
       </div>
 
       <div className="no-scrollbar" style={{ display: "flex", gap: 8, overflowX: "auto", padding: "0 16px 12px" }}>
+        <button
+          onClick={() => setCat("")}
+          style={{ flexShrink: 0, border: cat === "" ? "none" : `1px solid ${C.line}`, background: cat === "" ? C.ink : C.card, color: cat === "" ? "#fff" : C.inkSoft, fontWeight: 700, fontSize: 12.5, padding: "7px 14px", borderRadius: 999, cursor: "pointer" }}
+        >
+          {t("frases.all")}
+        </button>
         {cats.map((c) => {
           const on = c === cat;
           return (
@@ -62,7 +70,7 @@ export default function FrasesTab({ trip }: { trip: Trip }) {
               </div>
               <button
                 onClick={() => speak(p.target, trip.speakLang)}
-                aria-label="Escuchar"
+                aria-label={t("frases.listen")}
                 style={{ flexShrink: 0, border: "none", background: "#EAF1F6", borderRadius: 12, width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
               >
                 <Volume2 size={18} color={C.dusk} />
@@ -71,7 +79,7 @@ export default function FrasesTab({ trip }: { trip: Trip }) {
           </div>
         ))}
         {list.length === 0 && (
-          <div style={{ textAlign: "center", color: C.inkSoft, padding: 30, fontSize: 14 }}>Ninguna frase coincide con tu búsqueda.</div>
+          <div style={{ textAlign: "center", color: C.inkSoft, padding: 30, fontSize: 14 }}>{t("frases.empty")}</div>
         )}
       </div>
     </div>

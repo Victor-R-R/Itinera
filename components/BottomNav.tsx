@@ -2,15 +2,16 @@
 
 import { Home, CalendarDays, MapPin, MessagesSquare, LifeBuoy, type LucideIcon } from "lucide-react";
 import { C } from "@/lib/theme";
+import { useT } from "@/lib/i18n";
 
 export type TabId = "inicio" | "dias" | "mapa" | "frases" | "ayuda";
 
-const TABS: { id: TabId; label: string; Icon: LucideIcon }[] = [
-  { id: "inicio", label: "Inicio", Icon: Home },
-  { id: "dias", label: "Días", Icon: CalendarDays },
-  { id: "mapa", label: "Mapa", Icon: MapPin },
-  { id: "frases", label: "Frases", Icon: MessagesSquare },
-  { id: "ayuda", label: "Ayuda", Icon: LifeBuoy },
+const TAB_ICONS: { id: TabId; Icon: LucideIcon }[] = [
+  { id: "inicio", Icon: Home },
+  { id: "dias", Icon: CalendarDays },
+  { id: "mapa", Icon: MapPin },
+  { id: "frases", Icon: MessagesSquare },
+  { id: "ayuda", Icon: LifeBuoy },
 ];
 
 export default function BottomNav({
@@ -20,6 +21,7 @@ export default function BottomNav({
   active: TabId;
   onChange: (id: TabId) => void;
 }) {
+  const { t } = useT();
   return (
     <nav
       style={{
@@ -38,8 +40,9 @@ export default function BottomNav({
         justifyContent: "space-between",
       }}
     >
-      {TABS.map(({ id, label, Icon }) => {
+      {TAB_ICONS.map(({ id, Icon }) => {
         const on = id === active;
+        const label = t(`nav.${id}`);
         return (
           <button
             key={id}

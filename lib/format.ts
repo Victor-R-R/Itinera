@@ -29,13 +29,19 @@ export interface TripStatus {
   small: string;
 }
 
-export function tripStatus(trip: Trip): TripStatus {
+export function tripStatus(
+  trip: Trip,
+  t: (key: string, params?: Record<string, number | string>) => string
+): TripStatus {
   const idx = todayIndex(trip);
-  if (idx >= 0) return { big: `Día ${idx + 1}`, small: "Estáis de viaje ahora mismo" };
+  if (idx >= 0) return { big: t("inicio.dayN", { n: idx + 1 }), small: t("inicio.traveling") };
   const until = daysBetween(todayIso(), trip.startDate);
   if (until > 0)
-    return { big: `Faltan ${until}`, small: until === 1 ? "día para el viaje" : "días para el viaje" };
-  return { big: "Finalizado", small: "El viaje ha terminado" };
+    return {
+      big: t("inicio.daysLeft", { n: until }),
+      small: until === 1 ? t("inicio.dayUntil") : t("inicio.daysUntil"),
+    };
+  return { big: t("inicio.ended"), small: t("inicio.tripEnded") };
 }
 
 export function mapsUrl(query: string) {

@@ -10,6 +10,7 @@ import { Header } from "@/components/ui/Sections";
 import AddDayDialog from "@/components/trips/AddDayDialog";
 import AddItemDialog from "@/components/trips/AddItemDialog";
 import type { Trip, ItineraryItem } from "@/lib/types";
+import { useT } from "@/lib/i18n";
 
 export default function DiasTab({
   trip,
@@ -20,6 +21,7 @@ export default function DiasTab({
   selected: number;
   onSelect: (i: number) => void;
 }) {
+  const { t } = useT();
   const today = todayIndex(trip);
   const day = trip.days[selected];
   const [showAddDay, setShowAddDay] = useState(false);
@@ -31,9 +33,9 @@ export default function DiasTab({
   if (trip.days.length === 0) {
     return (
       <>
-        <Header title="Día a día" subtitle="Sin días todavía" />
+        <Header title={t("dias.title")} subtitle={t("dias.nodays_subtitle")} />
         <div style={{ padding: "0 16px 20px", color: C.inkSoft, fontSize: 13.5, lineHeight: 1.6 }}>
-          Añade el primer día para construir el itinerario.
+          {t("dias.nodays_body")}
         </div>
         <div style={{ padding: "0 16px" }}>
           <button
@@ -56,7 +58,7 @@ export default function DiasTab({
             }}
           >
             <Plus size={18} />
-            Añadir primer día
+            {t("dias.addFirstDay")}
           </button>
         </div>
         {showAddDay && <AddDayDialog trip={trip} onClose={() => setShowAddDay(false)} />}
@@ -66,7 +68,7 @@ export default function DiasTab({
 
   return (
     <div>
-      <Header title="Día a día" subtitle={`${trip.days.length} días de viaje`} />
+      <Header title={t("dias.title")} subtitle={t("dias.subtitle", { n: trip.days.length })} />
 
       {/* Day selector */}
       <div className="no-scrollbar" style={{ display: "flex", gap: 8, overflowX: "auto", padding: "4px 16px 12px" }}>
@@ -90,7 +92,7 @@ export default function DiasTab({
             >
               <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", opacity: 0.8 }}>{fmt(d.date, { weekday: "short" })}</div>
               <div style={{ fontFamily: FONT_DISPLAY, fontSize: 19, fontWeight: 600 }}>{fmt(d.date, { day: "numeric" })}</div>
-              <div style={{ fontSize: 9.5, fontWeight: 700, color: on ? "rgba(255,255,255,.9)" : C.inkSoft }}>{i === today ? "HOY" : `D${i + 1}`}</div>
+              <div style={{ fontSize: 9.5, fontWeight: 700, color: on ? "rgba(255,255,255,.9)" : C.inkSoft }}>{i === today ? t("dias.today") : t("dias.dayShort", { n: i + 1 })}</div>
             </button>
           );
         })}
@@ -115,7 +117,7 @@ export default function DiasTab({
           }}
         >
           <Plus size={16} color={C.inkSoft} />
-          <span style={{ fontSize: 9, fontWeight: 700 }}>Día</span>
+          <span style={{ fontSize: 9, fontWeight: 700 }}>{t("dias.day")}</span>
         </button>
       </div>
 
@@ -125,7 +127,7 @@ export default function DiasTab({
           <input
             autoFocus
             defaultValue={day.city && day.city !== "—" ? day.city : ""}
-            placeholder={`Día ${selected + 1}`}
+            placeholder={t("dias.dayN", { n: selected + 1 })}
             onBlur={(e) => {
               updateDayCity(trip.id, day.id, e.target.value.trim());
               setEditingCity(false);
@@ -151,10 +153,10 @@ export default function DiasTab({
         ) : (
           <h2
             onClick={() => setEditingCity(true)}
-            title="Clic para editar"
+            title={t("dias.editHint")}
             style={{ fontFamily: FONT_DISPLAY, fontWeight: 600, fontSize: 22, margin: "0 0 2px", cursor: "text" }}
           >
-            {day.city && day.city !== "—" ? day.city : `Día ${selected + 1}`}
+            {day.city && day.city !== "—" ? day.city : t("dias.dayN", { n: selected + 1 })}
           </h2>
         )}
         <div style={{ color: C.inkSoft, fontSize: 13.5 }}>{cap(fmt(day.date, { weekday: "long", day: "numeric", month: "long" }))}</div>
@@ -164,7 +166,7 @@ export default function DiasTab({
       <div style={{ padding: "8px 16px" }}>
         {day.items.length === 0 && (
           <div style={{ color: C.inkSoft, fontSize: 13, marginBottom: 12, lineHeight: 1.5 }}>
-            Sin actividades aún. Añade vuelos, hoteles, visitas…
+            {t("dias.noItems")}
           </div>
         )}
         {day.items.map((it, i) => (
@@ -197,7 +199,7 @@ export default function DiasTab({
           }}
         >
           <Plus size={16} color={C.inkSoft} />
-          Añadir reserva o actividad
+          {t("dias.addItem")}
         </button>
       </div>
 
@@ -216,6 +218,7 @@ function TimelineItem({
   last: boolean;
   onDelete: () => void;
 }) {
+  const { t } = useT();
   const m = metaFor(it.type);
   const [confirm, setConfirm] = useState(false);
 
@@ -240,12 +243,12 @@ function TimelineItem({
                   onClick={onDelete}
                   style={{ border: "none", background: C.danger, color: "#fff", borderRadius: 8, padding: "2px 7px", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
                 >
-                  Eliminar
+                  {t("dias.delete")}
                 </button>
               ) : (
                 <button
                   onClick={() => setConfirm(true)}
-                  aria-label="Eliminar"
+                  aria-label={t("dias.delete")}
                   style={{ border: "none", background: "transparent", cursor: "pointer", padding: 2, display: "flex", alignItems: "center" }}
                 >
                   <Trash2 size={13} color={C.inkSoft} />

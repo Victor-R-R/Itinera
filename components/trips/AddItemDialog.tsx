@@ -7,6 +7,7 @@ import { C, FONT_DISPLAY, FONT_SANS } from "@/lib/theme";
 import { addItemToDay } from "@/lib/store";
 import { uid } from "@/lib/format";
 import { TYPE_META } from "@/lib/itinerary";
+import { useT } from "@/lib/i18n";
 import type { ItemType, TripDay } from "@/lib/types";
 
 const TYPES: ItemType[] = ["flight", "hotel", "activity", "transfer", "free"];
@@ -59,6 +60,7 @@ export default function AddItemDialog({
   day: TripDay;
   onClose: () => void;
 }) {
+  const { t } = useT();
   const [type, setType] = useState<ItemType>("activity");
   const [time, setTime] = useState("");
   const [title, setTitle] = useState("");
@@ -134,24 +136,24 @@ export default function AddItemDialog({
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
           <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 600, fontSize: 22, margin: 0 }}>
-            Añadir reserva
+            {t("addItem.title")}
           </h2>
-          <button onClick={onClose} aria-label="Cerrar" style={{ border: "none", background: "transparent", cursor: "pointer", padding: 4 }}>
+          <button onClick={onClose} aria-label={t("addItem.close")} style={{ border: "none", background: "transparent", cursor: "pointer", padding: 4 }}>
             <X size={22} color={C.inkSoft} />
           </button>
         </div>
 
         {/* Type picker */}
         <div style={{ marginBottom: 16 }}>
-          <label style={labelStyle}>Tipo</label>
+          <label style={labelStyle}>{t("addItem.labelType")}</label>
           <div style={{ display: "flex", gap: 6 }}>
-            {TYPES.map((t) => {
-              const m = TYPE_META[t];
-              const on = t === type;
+            {TYPES.map((typ) => {
+              const m = TYPE_META[typ];
+              const on = typ === type;
               return (
                 <button
-                  key={t}
-                  onClick={() => setType(t)}
+                  key={typ}
+                  onClick={() => setType(typ)}
                   style={{
                     flex: 1,
                     borderRadius: 12,
@@ -189,7 +191,7 @@ export default function AddItemDialog({
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <div style={{ display: "flex", gap: 10 }}>
             <div style={{ flex: "0 0 110px" }}>
-              <label style={labelStyle}>Hora</label>
+              <label style={labelStyle}>{t("addItem.labelTime")}</label>
               <input
                 style={inputStyle}
                 value={time}
@@ -198,42 +200,42 @@ export default function AddItemDialog({
               />
             </div>
             <div style={{ flex: 1 }}>
-              <label style={labelStyle}>Título *</label>
+              <label style={labelStyle}>{t("addItem.labelTitle")}</label>
               <input
                 style={inputStyle}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Ej. Vuelo Madrid–JFK"
+                placeholder={t("addItem.phTitle")}
                 autoFocus
               />
             </div>
           </div>
 
           <div>
-            <label style={labelStyle}>Detalle</label>
+            <label style={labelStyle}>{t("addItem.labelDetail")}</label>
             <input
               style={inputStyle}
               value={detail}
               onChange={(e) => setDetail(e.target.value)}
-              placeholder="Número de vuelo, dirección, horario…"
+              placeholder={t("addItem.phDetail")}
             />
           </div>
 
           <div>
-            <label style={labelStyle}>Nota</label>
+            <label style={labelStyle}>{t("addItem.labelNote")}</label>
             <input
               style={inputStyle}
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="Tip, duración, recordatorio…"
+              placeholder={t("addItem.phNote")}
             />
           </div>
 
           <div style={{ borderTop: `1px solid ${C.line}`, paddingTop: 10, marginTop: 2 }}>
             <label style={{ ...labelStyle, display: "flex", alignItems: "center", gap: 5 }}>
               <MapPin size={11} color={C.dusk} />
-              Lugar en el mapa
-              <span style={{ fontSize: 10, fontWeight: 600, color: C.inkSoft, marginLeft: 2 }}>(opcional · se añade en /mapa)</span>
+              {t("addItem.labelLocation")}
+              <span style={{ fontSize: 10, fontWeight: 600, color: C.inkSoft, marginLeft: 2 }}>{t("addItem.locationOptional")}</span>
             </label>
             <div style={{ position: "relative" }}>
               <div style={{ position: "relative" }}>
@@ -243,7 +245,7 @@ export default function AddItemDialog({
                   onChange={(e) => onLocationChange(e.target.value)}
                   onFocus={() => { if (suggestions.length > 0) setShowSugg(true); }}
                   onBlur={() => { blurRef.current = setTimeout(() => setShowSugg(false), 200); }}
-                  placeholder="Aeropuerto JFK, Hotel Marriott Times Square…"
+                  placeholder={t("addItem.phLocation")}
                   autoComplete="off"
                 />
                 {searching && (
@@ -321,7 +323,7 @@ export default function AddItemDialog({
             background: title.trim() ? C.rose : "#D9C7C0",
           }}
         >
-          Añadir al itinerario
+          {t("addItem.add")}
         </button>
       </div>
     </div>

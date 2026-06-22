@@ -7,6 +7,7 @@ import { metaFor } from "@/lib/itinerary";
 import { Header, SectionTitle } from "@/components/ui/Sections";
 import type { TabId } from "@/components/BottomNav";
 import type { Trip, ItineraryItem } from "@/lib/types";
+import { useT } from "@/lib/i18n";
 
 export default function InicioTab({
   trip,
@@ -17,16 +18,17 @@ export default function InicioTab({
   onTab: (id: TabId) => void;
   onOpenDay: (index: number) => void;
 }) {
-  const status = tripStatus(trip);
+  const { t } = useT();
+  const status = tripStatus(trip, t);
   const idx = todayIndex(trip);
   const featured = idx >= 0 ? idx : 0;
   const day = trip.days[featured];
 
   const summary = [
-    { n: trip.days.length, l: "días" },
-    { n: trip.cities.length, l: "ciudades" },
-    { n: trip.days.flatMap((d) => d.items).filter((i) => i.type === "flight").length, l: "vuelos" },
-    { n: trip.days.flatMap((d) => d.items).filter((i) => i.type === "activity").length, l: "visitas" },
+    { n: trip.days.length, l: t("inicio.stat_days") },
+    { n: trip.cities.length, l: t("inicio.stat_cities") },
+    { n: trip.days.flatMap((d) => d.items).filter((i) => i.type === "flight").length, l: t("inicio.stat_flights") },
+    { n: trip.days.flatMap((d) => d.items).filter((i) => i.type === "activity").length, l: t("inicio.stat_activities") },
   ];
 
   return (
@@ -82,7 +84,7 @@ export default function InicioTab({
         ))}
       </div>
 
-      <SectionTitle>{idx >= 0 ? "Hoy" : "Primer día"}</SectionTitle>
+      <SectionTitle>{idx >= 0 ? t("inicio.today") : t("inicio.firstDay")}</SectionTitle>
       {day ? (
         <div style={{ padding: "0 16px" }}>
           <button
@@ -97,19 +99,19 @@ export default function InicioTab({
               <MiniItem key={it.id} it={it} />
             ))}
             <span style={{ display: "flex", alignItems: "center", gap: 4, color: C.rose, fontWeight: 700, fontSize: 13 }}>
-              Ver el día completo <ChevronRight size={15} />
+              {t("inicio.viewFullDay")} <ChevronRight size={15} />
             </span>
           </button>
         </div>
       ) : (
-        <Empty>Este viaje aún no tiene días. Añádelos para verlos aquí.</Empty>
+        <Empty>{t("inicio.noDays")}</Empty>
       )}
 
-      <SectionTitle>Accesos rápidos</SectionTitle>
+      <SectionTitle>{t("inicio.quickAccess")}</SectionTitle>
       <div style={{ display: "flex", gap: 10, padding: "0 16px" }}>
-        <Quick Icon={LifeBuoy} color={C.danger} label="Ayuda" onClick={() => onTab("ayuda")} />
-        <Quick Icon={MessagesSquare} color={C.dusk} label="Frases" onClick={() => onTab("frases")} />
-        <Quick Icon={MapPin} color={C.amber} label="La ruta" onClick={() => onTab("mapa")} />
+        <Quick Icon={LifeBuoy} color={C.danger} label={t("inicio.quickHelp")} onClick={() => onTab("ayuda")} />
+        <Quick Icon={MessagesSquare} color={C.dusk} label={t("inicio.quickPhrases")} onClick={() => onTab("frases")} />
+        <Quick Icon={MapPin} color={C.amber} label={t("inicio.quickMap")} onClick={() => onTab("mapa")} />
       </div>
     </div>
   );

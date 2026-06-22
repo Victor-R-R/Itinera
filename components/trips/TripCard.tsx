@@ -6,20 +6,22 @@ import { Trash2, Pencil, CalendarDays, MapPin } from "lucide-react";
 import { sileo } from "sileo";
 import { C, FONT_DISPLAY } from "@/lib/theme";
 import { fmt } from "@/lib/format";
+import { useT } from "@/lib/i18n";
 import EditTripDialog from "./EditTripDialog";
 import type { Trip } from "@/lib/types";
 
 export default function TripCard({ trip, onDelete }: { trip: Trip; onDelete: (id: string) => Promise<void> }) {
+  const { t, dateLocale } = useT();
   const [editing, setEditing] = useState(false);
 
   const onDeleteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     sileo.action({
-      title: "¿Eliminar viaje?",
+      title: t("tripCard.deleteTitle"),
       description: trip.title,
       button: {
-        title: "Eliminar",
+        title: t("tripCard.deleteButton"),
         onClick: () => onDelete(trip.id),
       },
     });
@@ -49,14 +51,14 @@ export default function TripCard({ trip, onDelete }: { trip: Trip; onDelete: (id
           <div style={{ position: "absolute", top: 10, right: 10, display: "flex", gap: 6 }}>
             <button
               onClick={onEdit}
-              aria-label="Editar viaje"
+              aria-label={t("tripCard.edit")}
               style={{ width: 32, height: 32, borderRadius: 10, border: "none", cursor: "pointer", background: "rgba(255,255,255,0.85)", display: "flex", alignItems: "center", justifyContent: "center" }}
             >
               <Pencil size={15} color={C.ink} />
             </button>
             <button
               onClick={onDeleteClick}
-              aria-label="Eliminar viaje"
+              aria-label={t("tripCard.delete")}
               style={{ width: 32, height: 32, borderRadius: 10, border: "none", cursor: "pointer", background: "rgba(255,255,255,0.85)", display: "flex", alignItems: "center", justifyContent: "center" }}
             >
               <Trash2 size={15} color={C.danger} />
@@ -75,7 +77,7 @@ export default function TripCard({ trip, onDelete }: { trip: Trip; onDelete: (id
               <MapPin size={14} color={C.amber} /> {trip.country}
             </span>
             <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-              <CalendarDays size={14} color={C.dusk} /> {fmt(trip.startDate, { day: "numeric", month: "short" })} – {fmt(trip.endDate, { day: "numeric", month: "short" })}
+              <CalendarDays size={14} color={C.dusk} /> {fmt(trip.startDate, { day: "numeric", month: "short" }, dateLocale)} – {fmt(trip.endDate, { day: "numeric", month: "short" }, dateLocale)}
             </span>
           </div>
         </div>

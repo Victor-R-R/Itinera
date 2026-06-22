@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Manrope } from "next/font/google";
 import SileoProvider from "@/components/SileoProvider";
+import { I18nProvider } from "@/lib/i18n";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -29,7 +30,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es" className={`${fraunces.variable} ${manrope.variable}`} suppressHydrationWarning>
       <body>
-        {children}
+        <I18nProvider>
+          {children}
+        </I18nProvider>
         <SileoProvider />
       </body>
     </html>

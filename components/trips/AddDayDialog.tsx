@@ -6,6 +6,7 @@ import { sileo } from "sileo";
 import { C, FONT_DISPLAY, FONT_SANS } from "@/lib/theme";
 import { addDayToTrip } from "@/lib/store";
 import { uid } from "@/lib/format";
+import { useT } from "@/lib/i18n";
 import type { Trip } from "@/lib/types";
 
 const inputStyle: React.CSSProperties = {
@@ -37,6 +38,7 @@ const nextDayAfter = (iso: string) => {
 };
 
 export default function AddDayDialog({ trip, onClose }: { trip: Trip; onClose: () => void }) {
+  const { t } = useT();
   const suggested =
     trip.days.length > 0
       ? nextDayAfter(trip.days[trip.days.length - 1].date)
@@ -48,7 +50,7 @@ export default function AddDayDialog({ trip, onClose }: { trip: Trip; onClose: (
   const submit = () => {
     const cityName = city.trim() || "—";
     addDayToTrip(trip.id, { id: uid(), date, city: cityName, items: [] });
-    sileo.success({ title: "Día añadido", description: cityName !== "—" ? cityName : date });
+    sileo.success({ title: t("addDay.successTitle"), description: cityName !== "—" ? cityName : date });
     onClose();
   };
 
@@ -78,15 +80,15 @@ export default function AddDayDialog({ trip, onClose }: { trip: Trip; onClose: (
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-          <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 600, fontSize: 22, margin: 0 }}>Nuevo día</h2>
-          <button onClick={onClose} aria-label="Cerrar" style={{ border: "none", background: "transparent", cursor: "pointer", padding: 4 }}>
+          <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 600, fontSize: 22, margin: 0 }}>{t("addDay.title")}</h2>
+          <button onClick={onClose} aria-label={t("addDay.close")} style={{ border: "none", background: "transparent", cursor: "pointer", padding: 4 }}>
             <X size={22} color={C.inkSoft} />
           </button>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <div>
-            <label style={labelStyle}>Fecha</label>
+            <label style={labelStyle}>{t("addDay.labelDate")}</label>
             <input
               type="date"
               style={inputStyle}
@@ -97,12 +99,12 @@ export default function AddDayDialog({ trip, onClose }: { trip: Trip; onClose: (
             />
           </div>
           <div>
-            <label style={labelStyle}>Ciudad o lugar</label>
+            <label style={labelStyle}>{t("addDay.labelCity")}</label>
             <input
               style={inputStyle}
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              placeholder="Ej. Nueva York"
+              placeholder={t("addDay.phCity")}
               autoFocus
             />
           </div>
@@ -125,7 +127,7 @@ export default function AddDayDialog({ trip, onClose }: { trip: Trip; onClose: (
             background: date ? C.rose : "#D9C7C0",
           }}
         >
-          Añadir día
+          {t("addDay.add")}
         </button>
       </div>
     </div>

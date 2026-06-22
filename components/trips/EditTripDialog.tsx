@@ -6,6 +6,7 @@ import { sileo } from "sileo";
 import { C, FONT_DISPLAY, FONT_SANS } from "@/lib/theme";
 import { updateTrip } from "@/lib/store";
 import { generateTripDays } from "@/lib/format";
+import { useT } from "@/lib/i18n";
 import type { Trip } from "@/lib/types";
 
 const inputStyle: React.CSSProperties = {
@@ -31,6 +32,7 @@ const labelStyle: React.CSSProperties = {
 };
 
 export default function EditTripDialog({ trip, onClose }: { trip: Trip; onClose: () => void }) {
+  const { t } = useT();
   const [title, setTitle] = useState(trip.title);
   const [tagline, setTagline] = useState(trip.tagline ?? "");
   const [travelers, setTravelers] = useState(trip.travelers ?? "");
@@ -44,37 +46,36 @@ export default function EditTripDialog({ trip, onClose }: { trip: Trip; onClose:
   const datesChanged = startDate !== trip.startDate || endDate !== trip.endDate;
 
   const submit = () => {
-    updateTrip(trip.id, (t) => {
+    updateTrip(trip.id, (tr) => {
       let days = trimOrphans
-        ? t.days.filter((d) => d.date >= startDate && d.date <= endDate)
-        : t.days;
+        ? tr.days.filter((d) => d.date >= startDate && d.date <= endDate)
+        : tr.days;
 
       const removedItemIds = trimOrphans
         ? orphanDays.flatMap((d) => d.items.map((it) => it.id))
         : [];
 
       const cities = trimOrphans
-        ? t.cities.filter((c) => !c.sourceItemId || !removedItemIds.includes(c.sourceItemId))
-        : t.cities;
+        ? tr.cities.filter((c) => !c.sourceItemId || !removedItemIds.includes(c.sourceItemId))
+        : tr.cities;
 
-      // Generate days for any date in the new range not already covered
       const existingDates = new Set(days.map((d) => d.date));
       const newDays = generateTripDays(startDate, endDate).filter((d) => !existingDates.has(d.date));
       days = [...days, ...newDays].sort((a, b) => a.date.localeCompare(b.date));
 
       return {
-        ...t,
-        title: title.trim() || t.title,
+        ...tr,
+        title: title.trim() || tr.title,
         tagline: tagline.trim() || undefined,
         travelers: travelers.trim() || undefined,
-        country: country.trim() || t.country,
+        country: country.trim() || tr.country,
         startDate,
         endDate,
         days,
         cities,
       };
     });
-    sileo.success({ title: "Cambios guardados", description: title.trim() || trip.title });
+    sileo.success({ title: t("editTrip.successTitle"), description: title.trim() || trip.title });
     onClose();
   };
 
@@ -106,34 +107,34 @@ export default function EditTripDialog({ trip, onClose }: { trip: Trip; onClose:
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-          <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 600, fontSize: 22, margin: 0 }}>Editar viaje</h2>
-          <button onClick={onClose} aria-label="Cerrar" style={{ border: "none", background: "transparent", cursor: "pointer", padding: 4 }}>
+          <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 600, fontSize: 22, margin: 0 }}>{t("editTrip.title")}</h2>
+          <button onClick={onClose} aria-label={t("editTrip.close")} style={{ border: "none", background: "transparent", cursor: "pointer", padding: 4 }}>
             <X size={22} color={C.inkSoft} />
           </button>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <div>
-            <label style={labelStyle}>Título *</label>
-            <input style={inputStyle} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ej. Costa a costa" />
+            <label style={labelStyle}>{t("editTrip.labelTitle")}</label>
+            <input style={inputStyle} value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t("editTrip.phTitle")} />
           </div>
           <div style={{ display: "flex", gap: 10 }}>
             <div style={{ flex: 1 }}>
-              <label style={labelStyle}>Etiqueta</label>
-              <input style={inputStyle} value={tagline} onChange={(e) => setTagline(e.target.value)} placeholder="Luna de miel" />
+              <label style={labelStyle}>{t("editTrip.labelTagline")}</label>
+              <input style={inputStyle} value={tagline} onChange={(e) => setTagline(e.target.value)} placeholder={t("editTrip.phTagline")} />
             </div>
             <div style={{ flex: 1 }}>
-              <label style={labelStyle}>País</label>
-              <input style={inputStyle} value={country} onChange={(e) => setCountry(e.target.value)} placeholder="Estados Unidos" />
+              <label style={labelStyle}>{t("editTrip.labelCountry")}</label>
+              <input style={inputStyle} value={country} onChange={(e) => setCountry(e.target.value)} placeholder={t("editTrip.phCountry")} />
             </div>
           </div>
           <div>
-            <label style={labelStyle}>Viajeros</label>
-            <input style={inputStyle} value={travelers} onChange={(e) => setTravelers(e.target.value)} placeholder="Lucía & Daniel" />
+            <label style={labelStyle}>{t("editTrip.labelTravelers")}</label>
+            <input style={inputStyle} value={travelers} onChange={(e) => setTravelers(e.target.value)} placeholder={t("editTrip.phTravelers")} />
           </div>
           <div style={{ display: "flex", gap: 10 }}>
             <div style={{ flex: 1 }}>
-              <label style={labelStyle}>Inicio</label>
+              <label style={labelStyle}>{t("editTrip.labelStart")}</label>
               <input
                 type="date"
                 style={inputStyle}
@@ -146,7 +147,7 @@ export default function EditTripDialog({ trip, onClose }: { trip: Trip; onClose:
               />
             </div>
             <div style={{ flex: 1 }}>
-              <label style={labelStyle}>Fin</label>
+              <label style={labelStyle}>{t("editTrip.labelEnd")}</label>
               <input
                 type="date"
                 style={inputStyle}
@@ -172,8 +173,8 @@ export default function EditTripDialog({ trip, onClose }: { trip: Trip; onClose:
             <div style={{ display: "flex", gap: 8, alignItems: "flex-start" }}>
               <AlertTriangle size={15} color={C.amber} style={{ flexShrink: 0, marginTop: 1 }} />
               <p style={{ margin: 0, fontSize: 12.5, color: C.ink, lineHeight: 1.5 }}>
-                <strong>{orphanCount} {orphanCount === 1 ? "día queda" : "días quedan"} fuera del nuevo rango</strong> y{" "}
-                {orphanCount === 1 ? "contiene" : "contienen"} actividades ya añadidas.
+                <strong>{orphanCount === 1 ? t("editTrip.orphan_one", { n: orphanCount }) : t("editTrip.orphan_many", { n: orphanCount })}</strong>{" "}
+                {t("editTrip.orphan_suffix")}
               </p>
             </div>
             <label
@@ -185,7 +186,7 @@ export default function EditTripDialog({ trip, onClose }: { trip: Trip; onClose:
                 onChange={(e) => setTrimOrphans(e.target.checked)}
                 style={{ width: 16, height: 16, accentColor: C.danger, cursor: "pointer" }}
               />
-              Eliminar esos días y sus actividades
+              {t("editTrip.trimLabel")}
             </label>
           </div>
         )}
@@ -207,7 +208,7 @@ export default function EditTripDialog({ trip, onClose }: { trip: Trip; onClose:
             background: title.trim() ? C.rose : "#D9C7C0",
           }}
         >
-          Guardar cambios
+          {t("editTrip.save")}
         </button>
       </div>
     </div>
